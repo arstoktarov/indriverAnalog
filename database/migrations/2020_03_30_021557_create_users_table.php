@@ -15,18 +15,17 @@ class CreateUsersTable extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->integer('type'); //1 for user, 2 for executor
-            $table->string('first_name');
-            $table->string('last_name');
+            $table->integer('type')->default(1); //1 for user, 2 for executor
+            $table->string('name')->default('Noname');
             $table->string('phone');
             $table->timestamp('phone_verified_at')->nullable();
-            $table->unsignedBigInteger('city_id');
-            $table->string('password');
-            $table->integer('balance');
+            $table->unsignedBigInteger('city_id')->nullable();
+            $table->string('password')->default('nopassword');
+            $table->integer('balance')->default(0);
             $table->boolean('push')->default(1);
             $table->boolean('sound')->default(1);
             $table->enum('lang', ['ru', 'en'])->default('ru');
-            $table->rememberToken();
+            $table->string('token', 60)->nullable();
             $table->timestamps();
             $table->foreign('city_id')->references('id')->on('users');
         });

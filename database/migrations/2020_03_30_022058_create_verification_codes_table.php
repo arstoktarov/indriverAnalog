@@ -16,7 +16,9 @@ class CreateVerificationCodesTable extends Migration
         Schema::create('verification_codes', function (Blueprint $table) {
             $table->id();
             $table->string('phone')->unique();
-            $table->string('code');
+            $table->string('code')->nullable();
+            $table->string('token')->nullable();
+            $table->timestamp('verified_at')->nullable();
             $table->timestamps();
         });
     }
