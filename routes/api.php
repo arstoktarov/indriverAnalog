@@ -21,6 +21,8 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::group(['namespace' => 'v1\Rest', 'prefix' => 'v1'], function() {
 
+    Route::get('cities', 'CityController@index');
+
     Route::group(['prefix' => 'user'], function() {
         Route::post('sign-up', 'UserController@signUp');
         Route::post('sign-in', 'UserController@signIn');
@@ -31,6 +33,8 @@ Route::group(['namespace' => 'v1\Rest', 'prefix' => 'v1'], function() {
         Route::post('create', 'UserController@createUser');
 
         Route::group(['middleware' => 'userAuth'], function() {
+            Route::post('edit', 'UserController@editProfile');
+            Route::get('auth', 'UserController@auth');
         });
     });
 

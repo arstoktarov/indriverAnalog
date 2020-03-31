@@ -6,5 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class PasswordResets extends Model
 {
-    //
+    public function user() {
+        return $this->belongsTo(User::class);
+    }
 }

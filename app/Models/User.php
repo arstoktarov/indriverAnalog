@@ -27,9 +27,8 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'password', 'remember_token', 'phone_verified_at', 'city_id', 'created_at', 'updated_at'
     ];
-
     /**
      * The attributes that should be cast to native types.
      *
@@ -43,6 +42,11 @@ class User extends Authenticatable
         'sound' => 'integer',
         'type' => 'integer',
     ];
+
+
+    public function city() {
+        return $this->belongsTo(City::class);
+    }
 
 
     public function setPassword($value) {
@@ -59,6 +63,10 @@ class User extends Authenticatable
         $this->attributes['phone_verified_at'] = Carbon::now();
         $this->resetToken();
         $this->save();
+    }
+
+    public function scopeVerified($query) {
+        return $query->whereNotNull('phone_verified_at');
     }
 
 /*    public function setCode($value) {
