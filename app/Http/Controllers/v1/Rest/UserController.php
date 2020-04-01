@@ -85,7 +85,7 @@ class UserController extends Controller
         if ($validator->fails()) return $this->Result(400, null, $validator->errors());
 
         $user = User::where('phone', $request['phone'])
-            ->where('phone_verification_code', $request['code'])->first();
+            ->where('phone_verification_code', $request['code'])->whereNull('phone_verified_at')->first();
 
         if (!$user || $user->updated_at < Carbon::now()->subSeconds(VerificationCodes::$codeTTL)) {
             return $this->Result(404, null, 'Verification not found');
