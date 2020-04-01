@@ -18,6 +18,7 @@ class CreateUsersTable extends Migration
             $table->integer('type')->default(1); //1 for user, 2 for executor
             $table->string('name')->default('Noname');
             $table->string('phone');
+            $table->string('phone_verification_code')->nullable();
             $table->timestamp('phone_verified_at')->nullable();
             $table->unsignedBigInteger('city_id')->nullable();
             $table->string('password')->default('nopassword');

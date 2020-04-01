@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
+    #region Registration
 
     public function signUp(Request $request) {
         $rules = [
@@ -26,25 +27,76 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) return $this->Result(400, null, $validator->errors()->first());
 
-        $user = User::where('phone', $request['phone'])->whereNotNull('phone_verified_at')->first();
+        $user = User::firstOrNew($request->only('phone'));
+        $user->phone = $request['phone'];
 
-        if ($user) return $this->Result(400, null, 'User already exists'); //TODO add localized message
-
-        $verification = VerificationCodes::firstOrNew($request->only('phone'));
+        if ($user->verified) return $this->Result(400, null, 'User already verified'); //TODO add localized message
 
         //$code = random_int(1000, 9999);
         $code = 1234;
-        if ($verification->updated_at > Carbon::now()->subSeconds(VerificationCodes::$codeTTL)) {
-            $timeRemaining = VerificationCodes::$codeTTL - Carbon::now()->diffInSeconds($verification->updated_at);
+        if ($user->updated_at > Carbon::now()->subSeconds(VerificationCodes::$codeTTL)) {
+            $timeRemaining = VerificationCodes::$codeTTL - Carbon::now()->diffInSeconds($user->updated_at);
+            return $this->Result(400, null, 'Невозможно отправить код, подождите ' . $timeRemaining . ' секунд');
+        }
+
+        $user->phone_verification_code = $code;
+        $user->save();
+
+
+        return response()->json($user->only('phone'), 200);
+    }
+
+    public function resendCode(Request $request) {
+        $rules = [
+            'phone' => [
+                'required',
+                'regex:/^[8].{10}$/m',
+            ],
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) return $this->Result(400, null, $validator->errors()->first());
+
+        $user = User::where('phone', $request['phone']);
+
+        if (!$user->verified) return $this->Result(400, null, 'User already verified'); //TODO add localized message
+        //$code = random_int(1000, 9999);
+        $code = 1234;
+        if ($user->updated_at > Carbon::now()->subSeconds(VerificationCodes::$codeTTL)) {
+            $timeRemaining = VerificationCodes::$codeTTL - Carbon::now()->diffInSeconds($user->updated_at);
             return $this->Result(400, null, 'Невозможно отправить код, подождите ' . $timeRemaining . ' секунд');
         }
         //TODO MESSAGE SENDING PROCESS
-        $verification->code = $code;
-        $verification->save();
+        $user->code = $code;
+        $user->save();
 
-
-        return response()->json($verification, 200);
+        return response()->json('It Works');
     }
+
+    public function verify(Request $request) {
+        $rules = [
+            'phone' => [
+                'required',
+                'regex:/^[8].{10}$/m',
+            ],
+            'code' => 'required|digits:4',
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) return $this->Result(400, null, $validator->errors());
+
+        $user = User::where('phone', $request['phone'])
+            ->where('phone_verification_code', $request['code'])->first();
+
+        if (!$user || $user->updated_at < Carbon::now()->subSeconds(VerificationCodes::$codeTTL)) {
+            return $this->Result(404, null, 'Verification not found');
+        }
+
+        $user->resetToken();
+
+        return response()->json($user->only('token'));
+    }
+
+    #endregion
 
     public function signIn(Request $request) {
         $rules = [
@@ -81,58 +133,6 @@ class UserController extends Controller
         return response()->json($user);
     }
 
-    public function resendCode(Request $request) {
-        $rules = [
-            'phone' => [
-                'required',
-                'regex:/^[8].{10}$/m',
-            ],
-        ];
-
-        $validator = Validator::make($request->all(), $rules);
-        if ($validator->fails()) return $this->Result(400, null, $validator->errors()->first());
-
-        $verification = VerificationCodes::where('phone', $request['phone']);
-
-        //$code = random_int(1000, 9999);
-        $code = 1234;
-        if ($verification->updated_at > Carbon::now()->subSeconds(VerificationCodes::$codeTTL)) {
-            $timeRemaining = VerificationCodes::$codeTTL - Carbon::now()->diffInSeconds($verification->updated_at);
-            return $this->Result(400, null, 'Невозможно отправить код, подождите ' . $timeRemaining . ' секунд');
-        }
-        //TODO MESSAGE SENDING PROCESS
-        $verification->code = $code;
-        $verification->save();
-
-        return response()->json('It Works');
-    }
-
-    public function verify(Request $request) {
-        $rules = [
-            'phone' => [
-                'required',
-                'regex:/^[8].{10}$/m',
-            ],
-            'code' => 'required|digits:4',
-        ];
-        $validator = Validator::make($request->all(), $rules);
-        if ($validator->fails()) return $this->Result(400, null, $validator->errors());
-
-        $verification = VerificationCodes::where('phone', $request['phone'])
-            ->where('code', $request['code'])->first();
-
-        if (!$verification || $verification->updated_at < Carbon::now()->subSeconds(VerificationCodes::$codeTTL)) {
-            if ($verification) $verification->delete();
-            return $this->Result(404, null, 'Verification not found');
-        }
-
-        $user = User::firstOrNew($request->only('phone'));
-        $user->phone = $request['phone'];
-        $user->resetToken();
-        $user->save();
-
-        return response()->json($user->only('token'));
-    }
 
     public function resetPassword(Request $request) {
         $rules = [

@@ -58,6 +58,9 @@ class User extends Authenticatable
         $this->attributes['token'] = Str::random(30);
     }
 
+    public function getVerifiedAttribute() {
+        return isset($this->attributes['phone_verified_at']);
+    }
 
     public function verify() {
         $this->attributes['phone_verified_at'] = Carbon::now();
