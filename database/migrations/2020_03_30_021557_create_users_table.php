@@ -28,7 +28,7 @@ class CreateUsersTable extends Migration
             $table->enum('lang', ['ru', 'en'])->default('ru');
             $table->string('token', 60)->nullable();
             $table->timestamps();
-            $table->foreign('city_id')->references('id')->on('users');
+            $table->foreign('city_id')->references('id')->on('cities');
         });
     }
 

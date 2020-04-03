@@ -40,6 +40,7 @@ class UserController extends Controller
         }
 
         $user->phone_verification_code = $code;
+        $user->touch();
         $user->save();
 
 
@@ -92,6 +93,7 @@ class UserController extends Controller
         }
 
         $user->resetToken();
+        $user->save();
 
         return response()->json($user->only('token'));
     }
@@ -132,7 +134,6 @@ class UserController extends Controller
         $user->load('city');
         return response()->json($user);
     }
-
 
     public function resetPassword(Request $request) {
         $rules = [
@@ -181,9 +182,10 @@ class UserController extends Controller
 
     public function editProfile(EditProfileRequest $request) {
         $user = $request['user'];
-        if ($request['name']) $user->name = $request['name'];
-        if ($request['city_id']) $user->city_id = $request['city_id'];
+
+        $user->fill($request->all());
         if ($request['password']) $user->password = $request['password'];
+
         $user->save();
         $user->load('city');
         return response()->json($user);

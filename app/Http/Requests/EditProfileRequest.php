@@ -29,6 +29,9 @@ class EditProfileRequest extends FormRequest
             'name' => 'string|min:3',
             'city_id' => 'numeric|exists:cities,id',
             'password' => 'string|min:3',
+            'push' => 'boolean',
+            'sound' => 'boolean',
+            'lang' => 'in:en,ru',
         ];
     }
 
