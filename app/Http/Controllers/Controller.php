@@ -13,6 +13,7 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
+    public const PAGINATE_COUNT = 20;
 
     protected function uploadFile($file, $dir = ''){
         if (isset($file)){

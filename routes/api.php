@@ -38,4 +38,6 @@ Route::group(['namespace' => 'v1\Rest', 'prefix' => 'v1'], function() {
         });
     });
 
+    Route::get('materials', 'MaterialController@index');
+    Route::get('technics', 'TechnicController@index');
 });

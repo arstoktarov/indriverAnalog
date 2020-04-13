@@ -110,9 +110,10 @@ class UserController extends Controller
 
         $user = User::verified()->where('phone', $request['phone'])->where('password', $request['password'])->first();
 
+        if (!$user) return $this->Result(401, null, trans('auth.failed')); //TODO add localized message
+
         $user->load('city');
 
-        if (!$user) return $this->Result(401, null, trans('auth.failed')); //TODO add localized message
 
         return response()->json($user);
     }
