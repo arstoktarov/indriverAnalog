@@ -29,5 +29,7 @@ async function getUserByToken(token) {
     return await User.query().where('token', token).first();
 }
 
+
+
 module.exports.User = User;
 module.exports.getUserByToken = getUserByToken;

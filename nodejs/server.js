@@ -28,6 +28,7 @@ const WebSocket = require('ws');
 const wss = new WebSocket.Server({
     port: 8080,
 });
+consoleMsg.info('WS Server started at ' + 8080);
 
 //wss sockets
 let sockets = new Set();
@@ -136,6 +137,8 @@ wss.on('connection',  function connection(ws) {
     wsUser.addEventListener("getMyData", function(data, eventName) {
         wsUser.send(functions.getJsonResponse(eventName, wsUser.getData()));
     });
+
+
 });
 
 setInterval(function() {
@@ -156,4 +159,3 @@ wss.on('close', function() {
 app.get('/applyCourier', function(req, res) {
     consoleMsg.log(JSON.stringify(req.parameters));
 });
-

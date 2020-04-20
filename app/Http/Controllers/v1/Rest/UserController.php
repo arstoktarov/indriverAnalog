@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
+
     #region Registration
 
     public function signUp(Request $request) {
@@ -191,5 +192,6 @@ class UserController extends Controller
         $user->load('city');
         return response()->json($user);
     }
+
 
 }

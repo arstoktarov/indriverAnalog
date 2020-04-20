@@ -9,7 +9,8 @@ use Illuminate\Http\Request;
 class TechnicController extends Controller
 {
     public function index() {
-        $technics = Technic::with(['category', 'characteristics', 'characteristics.type'])->get();
+        $technics = Technic::with(['category', 'characteristics', 'characteristics.type'])
+            ->paginate(self::PAGINATE_COUNT);
 
         return $technics;
     }
