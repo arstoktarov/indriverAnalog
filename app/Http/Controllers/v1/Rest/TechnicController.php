@@ -14,4 +14,9 @@ class TechnicController extends Controller
 
         return $technics;
     }
+
+    public function addTechnic(Request $request) {
+        $user = $request['user'];
+
+    }
 }

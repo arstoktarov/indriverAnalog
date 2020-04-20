@@ -48,6 +48,10 @@ class User extends Authenticatable
         return $this->belongsTo(City::class);
     }
 
+    public function technics() {
+        return $this->belongsToMany(Technic::class);
+    }
+
 
     public function setPassword($value) {
         $this->attributes['password'] = $value;

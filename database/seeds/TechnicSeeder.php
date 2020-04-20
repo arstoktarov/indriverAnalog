@@ -29,7 +29,7 @@ class TechnicSeeder extends Seeder
                 $technic->category_id = $type->id;
                 $technic->model = 'ASD-'.($i*10);
                 $technic->specification = 'asd';
-                $technic->image = null;
+                $technic->image = 'storage/image_1.png';
                 $technic->save();
             }
         }
