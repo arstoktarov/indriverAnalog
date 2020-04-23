@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTCharacteristicsTable extends Migration
+class CreateMCharacteristicsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,8 @@ class CreateTCharacteristicsTable extends Migration
      */
     public function up()
     {
-        Schema::create('t_characteristics', function (Blueprint $table) {
+        Schema::create('m_characteristics', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('type_id');
-            $table->unsignedBigInteger('technic_id');
-            $table->string('title');
-            $table->float('value');
-            $table->string('unit');
             $table->timestamps();
         });
     }
@@ -31,6 +26,6 @@ class CreateTCharacteristicsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('t_characteristics');
+        Schema::dropIfExists('m_characteristics');
     }
 }

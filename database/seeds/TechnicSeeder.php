@@ -13,47 +13,94 @@ class TechnicSeeder extends Seeder
      */
     public function run()
     {
-        $types = ['Экскаватр', 'Экскаватор на автомобильном шасси', 'Колесный экскаватор',
-            'Экскаватор погрузчик', 'Экскаватор планировщик', 'Экскаватор -бульдозер',
-            'Самосвал', 'Бортовая машина', 'Бортовой автомобиль', 'Ассенизаторская машина',
+        DB::table('t_types')->delete();
+        DB::table('technics')->delete();
+
+        $this->seedTypes();
+        $this->seedTechnics(5);
+
+    }
+
+    public function seedTypes() {
+        $types = [
+            [
+                'title' => 'Экскаватр',
+                'description' => 'Экскаватр',
+                'image' => null,
+                'charac_title' => 'Объем ковша',
+                'charac_unit' => 'м3',
+            ],
+            [
+                'title' => 'Экскаватор на автомобильном шасси',
+                'description' => 'Экскаватор на автомобильном шасси',
+                'image' => null,
+                'charac_title' => 'Объем ковша',
+                'charac_unit' => 'м3',
+            ],
+            [
+                'title' => 'Колесный экскаватор',
+                'description' => 'Колесный экскаватор',
+                'image' => null,
+                'charac_title' => 'Объем ковша',
+                'charac_unit' => 'м3',
+            ],
+            [
+                'title' => 'Экскаватор погрузчик',
+                'description' => 'Экскаватор погрузчик',
+                'image' => null,
+                'charac_title' => 'Объем ковша',
+                'charac_unit' => 'м3',
+            ],
+            [
+                'title' => 'Экскаватор планировщик',
+                'description' => 'Экскаватор планировщик',
+                'image' => null,
+                'charac_title' => 'Объем ковша',
+                'charac_unit' => 'м3',
+            ],
+            [
+                'title' => 'Экскаватор-бульдозер',
+                'description' => 'Экскаватор-бульдозер',
+                'image' => null,
+                'charac_title' => 'Объем ковша',
+                'charac_unit' => 'м3',
+            ],
+            [
+                'title' => 'Самосвал',
+                'description' => 'Самосвал',
+                'image' => null,
+                'charac_title' => 'Объем ковша',
+                'charac_unit' => 'м3',
+            ],
+            [
+                'title' => 'Бортовая машина',
+                'description' => 'Бортовая машина',
+                'image' => null,
+                'charac_title' => 'Объем ковша',
+                'charac_unit' => 'м3',
+            ],
+            [
+                'title' => 'Бортовой автомобиль',
+                'description' => 'Бортовой автомобиль',
+                'image' => null,
+                'charac_title' => 'Объем ковша',
+                'charac_unit' => 'м3',
+            ],
         ];
         foreach ($types as $type) {
-            DB::table('t_categories')->insert(['title' => $type]);
+            DB::table('t_types')->insert($type);
         }
+    }
 
-        $types = DB::table('t_categories')->get();
-
+    public function seedTechnics($count) {
+        $types = \App\Models\TechnicType::all();
         foreach ($types as $type) {
-            for ($i = 0; $i < 5; $i++) {
-                $technic = new Technic();
-                $technic->category_id = $type->id;
-                $technic->model = 'ASD-'.($i*10);
-                $technic->specification = 'asd';
-                $technic->image = 'storage/image_1.png';
-                $technic->save();
+            for ($i = 0; $i < $count; $i++) {
+                DB::table('technics')->insert([
+                    'type_id' => $type->id,
+                    'charac_value' => $i + 0.5,
+                ]);
             }
         }
-
-        $charac_types = ['Объем ковша', 'Емкость', 'Габариты', 'Масса груза'];
-
-        foreach ($charac_types as $charac_type) {
-            DB::table('characteristic_types')->insert(['title' => $charac_type]);
-        }
-
-
-        $technics = Technic::all();
-
-        foreach ($technics as $technic) {
-            DB::table('t_characteristics')
-                ->insert([
-                    'type_id' => 1,
-                    'technic_id' => $technic->id,
-                    'title' => 'Некая характеристика',
-                    'value' => 25,
-                    'unit' => 'кг',
-                ]);
-        }
-
-
     }
 }

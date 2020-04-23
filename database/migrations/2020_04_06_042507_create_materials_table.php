@@ -16,11 +16,9 @@ class CreateMaterialsTable extends Migration
         Schema::create('materials', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('type_id');
-            $table->string('title');
-            $table->string('avatar')->nullable();
-            $table->string('brand')->nullable();
-            $table->string('description');
+            $table->double('charac_value');
             $table->timestamps();
+            $table->foreign('type_id')->references('id')->on('m_types')->onDelete('cascade');
         });
     }
 

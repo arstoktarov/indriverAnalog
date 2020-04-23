@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\UserMaterials;
 use Carbon\Carbon;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -49,7 +50,11 @@ class User extends Authenticatable
     }
 
     public function technics() {
-        return $this->belongsToMany(Technic::class);
+        return $this->belongsToMany(Technic::class, 'users_technics');
+    }
+
+    public function materials() {
+        return $this->belongsToMany(Material::class, 'user_materials');
     }
 
 

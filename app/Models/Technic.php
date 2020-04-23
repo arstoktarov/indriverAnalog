@@ -7,20 +7,26 @@ use Illuminate\Support\Facades\Storage;
 
 class Technic extends Model
 {
-    protected $hidden = ['created_at', 'updated_at'];
-    protected $appends = ['image'];
+    protected $hidden = ['created_at', 'updated_at', 'specification', 'pivot', 'type_id', 'user_id', 'technic_id'];
+    //protected $appends = ['image'];
 
 
-    public function category() {
-        return $this->belongsTo(TechnicCategory::class);
+    public function type() {
+        return $this->belongsTo(TechnicType::class);
     }
 
-    public function characteristics() {
-        return $this->hasMany(TechnicCharacteristics::class);
+//    public function getImageAttribute() {
+//        return asset('public/'.$this->attributes['image']);
+//    }
+
+
+    public function scopeWithType($query, $type_id) {
+        if (isset($type_id)) {
+            return $query->where('type_id', $type_id);
+        }
+        return $query;
     }
 
-    public function getImageAttribute() {
-        return asset($this->attributes['image']);
-    }
+    //public function scopeSelect('')
 
 }

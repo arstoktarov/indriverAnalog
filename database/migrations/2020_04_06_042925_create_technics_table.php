@@ -15,11 +15,11 @@ class CreateTechnicsTable extends Migration
     {
         Schema::create('technics', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('category_id');
-            $table->string('model');
-            $table->string('specification')->nullable();
-            $table->string('image')->nullable();
+            //$table->unsignedBigInteger('category_id');
+            $table->unsignedBigInteger('type_id');
+            $table->double('charac_value');
             $table->timestamps();
+            $table->foreign('type_id')->references('id')->on('t_types')->cascadeOnDelete();
         });
         //TODO Add table columns
     }
