@@ -15,7 +15,9 @@ class MaterialTypeController extends Controller
      */
     public function index()
     {
-        //
+        $types = MaterialType::orderBy('title')->paginate(10);
+
+        return view('admin.mType.index', ['types' => $types]);
     }
 
     /**
@@ -36,7 +38,15 @@ class MaterialTypeController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $type = new MaterialType();
+        $type->title = $request['title'];
+        $type->description = $request['description'];
+        if($request['image']){
+            $type->avatar = $this->uploadFile($request['image']);
+        }
+        $type->save();
+
+        return back()->withMessage('Успешно!');
     }
 
     /**
@@ -58,7 +68,7 @@ class MaterialTypeController extends Controller
      */
     public function edit(MaterialType $materialType)
     {
-        //
+        return view('admin.mType.edit', ['type' => $materialType]);
     }
 
     /**
@@ -70,7 +80,16 @@ class MaterialTypeController extends Controller
      */
     public function update(Request $request, MaterialType $materialType)
     {
-        //
+        $materialType->title = $request['title'];
+        $materialType->description = $request['description'];
+        if ($request->file('image')) {
+            if (!is_null($materialType['avatar'])) {
+                $this->deleteFile($materialType['avatar']);
+            }
+            $materialType['avatar'] = $this->uploadFile($request['image']);
+        }
+        $materialType->save();
+        return redirect($request['redirects_to'] ?? route('materialTypes.index'));
     }
 
     /**

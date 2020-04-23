@@ -1,4 +1,4 @@
-@extends('admin.layouts.app', ['title' => 'Список материалов', 'active_clients' => 'active'])
+@extends('admin.layouts.app', ['title' => 'Список типов материалов', 'active_clients' => 'active'])
 
 @section('content')
     <section class="content">
@@ -13,7 +13,7 @@
                     <div class="card">
                         <div class="header">
                             <h2>
-                                Список материалов
+                                Список типов материалов
                             </h2>
                             <button title="Добавить статью" type="button" data-toggle="modal" data-target="#defaultModal" class="btn btn-danger btn-circle waves-effect waves-circle waves-float waves-effect m-t--30 pull-right">
                                 <i class="material-icons m-t-5">add</i>
@@ -26,26 +26,22 @@
                                     <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>Аватар</th>
+                                        <th>Картинка</th>
                                         <th>Название</th>
-                                        <th>Бренд</th>
                                         <th>Описание</th>
-                                        <th>Тип</th>
-                                        <th>Действия</th>
+                                        <th></th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    @foreach($materials as $material)
+                                    @foreach($types as $type)
                                         <tr>
-                                            <td>{{$material->id}}</td>
-                                            <td><img width="200" height="100" src="{{asset($material->avatar)}}" alt=""></td>
-                                            <td>{{$material->title}}</td>
-                                            <td>{{$material->brand}}</td>
-                                            <td>{{$material->description}}</td>
-                                            <td>{{$material->type['title']}}</td>
+                                            <td>{{$type->id}}</td>
+                                            <td><img width="200" height="100" src="{{asset($type->avatar)}}" alt=""></td>
+                                            <td>{{$type->title}}</td>
+                                            <td>{{$type->description}}</td>
                                             <td>
-                                                <a href="{{route('materials.edit', $material->id)}}" class="waves-effect btn btn-primary"><i class="material-icons">edit</i></a>
-                                                <form action="{{route('materials.destroy', $material->id)}}" method="POST" style="display:inline-block">
+                                                <a href="{{route('materialTypes.edit', $type->id)}}" class="waves-effect btn btn-primary"><i class="material-icons">edit</i></a>
+                                                <form action="{{route('materialTypes.destroy', $type->id)}}" method="POST" style="display:inline-block">
                                                     @method('delete')
                                                     @csrf
                                                     <button type="submit" class="waves-effect btn btn-danger"><i class="material-icons">delete</i></button>
@@ -56,7 +52,7 @@
                                     </tbody>
                                 </table>
                             </div>
-                            {{$materials->links()}}
+                            {{$types->links()}}
                         </div>
                     </div>
                 </div>
@@ -67,42 +63,26 @@
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <h5 class="modal-header">
-                            Добавить город
+                            Добавить категорию
                         </h5>
                         <div class="modal-body">
-                            <form action="{{route('materials.store')}}" method="post" enctype="multipart/form-data">
+                            <form action="{{route('materialTypes.store')}}" method="post" enctype="multipart/form-data">
                                 {{csrf_field()}}
+                                <label class="form-label">Картинка</label>
                                 <div class="form-group form-float p-t-20">
-                                    <label class="form-label">Картинка</label>
-                                    <div ng-class="form-control" class="form-line">
-                                        <input  type="file" class="form-control" id="image" name="image" accept="image/*" />
-                                    </div>
-                                </div>
-                                <div class="form-group form-float p-t-20">
-                                    <label class="form-label">Тип материала</label>
                                     <div class="form-line">
-                                        <select class="form-control" name="type_id" id="type_id">
-                                            @foreach($types as $type)
-                                                <option value="{{$type->id}}">{{$type->title}}</option>
-                                            @endforeach
-                                        </select>
+                                        <input required type="file" class="form-control" id="image" name="image"/>
                                     </div>
                                 </div>
-                                <div class="form-group form-float p-t-20">
+                                <div class="form-group form-float">
                                     <div class="form-line">
                                         <input required type="text" class="form-control" id="title" name="title"/>
                                         <label class="form-label">Название</label>
                                     </div>
                                 </div>
-                                <div class="form-group form-float p-t-20">
+                                <div class="form-group form-float">
                                     <div class="form-line">
-                                        <input required type="text" class="form-control" id="brand" name="brand"/>
-                                        <label class="form-label">Бренд</label>
-                                    </div>
-                                </div>
-                                <div class="form-group form-float p-t-20">
-                                    <div class="form-line">
-                                        <input required type="text" class="form-control" id="description" name="description"/>
+                                        <input required type="text" class="form-control" id="title" name="title"/>
                                         <label class="form-label">Описание</label>
                                     </div>
                                 </div>

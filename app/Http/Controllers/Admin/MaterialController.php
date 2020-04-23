@@ -16,7 +16,7 @@ class MaterialController extends Controller
      */
     public function index()
     {
-        $materials = Material::orderBy('id', 'desc')->paginate(10);
+        $materials = Material::with('type')->orderBy('id', 'desc')->paginate(10);
         $types = MaterialType::orderBy('id', 'desc')->get();
         return view('admin.material.index', ['materials' => $materials, 'types' => $types]);
     }
@@ -70,7 +70,8 @@ class MaterialController extends Controller
      */
     public function edit(Material $material)
     {
-        return view('admin.material.edit', ['material' => $material]);
+        $types = MaterialType::orderBy('id', 'desc')->get();
+        return view('admin.material.edit', ['material' => $material, 'types' => $types]);
     }
 
     /**
@@ -90,7 +91,7 @@ class MaterialController extends Controller
             if (!is_null($material['avatar'])) {
                 $this->deleteFile($material['avatar']);
             }
-            $material['avatar'] = $this->uploadFile($request['image']);
+            $material['avatar'] = $this->uploadFile($request['image'], 'material');
         }
         $material->save();
         return redirect($request['redirects_to'] ?? route('materials.index'));

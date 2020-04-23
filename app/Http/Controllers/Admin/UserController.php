@@ -60,7 +60,10 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        return view('admin.users.show', ['user' => $user]);
+//        $user->load([
+//            'technics'
+//        ]);
+        return view('admin.user.show', ['user' => $user]);
     }
 
     /**

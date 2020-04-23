@@ -30,6 +30,7 @@
                                         <th>Спецификация</th>
                                         <th>Картинка</th>
                                         <th>Категория</th>
+                                        <th>Характеристика</th>
                                         <th>Действия</th>
                                     </tr>
                                     </thead>
@@ -41,6 +42,13 @@
                                             <td>{{$technic->specification}}</td>
                                             <td><img style="max-height: 200px; max-width: 200px" src="{{asset($technic->image)}}" alt="Картинка статьи"/></td>
                                             <td>{{$technic->category['title']}}</td>
+                                            <td>
+                                                <form action="{{route('technicCharacteristics.index', $technic->id)}}" style="display:inline-block">
+                                                    @csrf
+                                                    <input type="hidden" value="{{$technic->id}}" name="id">
+                                                    <button type="submit" class="waves-effect btn btn-danger"><i class="material-icons">visibility</i></button>
+                                                </form>
+                                            </td>
                                             <td>
                                                 <a href="{{route('technics.edit', $technic->id)}}" class="waves-effect btn btn-primary"><i class="material-icons">edit</i></a>
                                                 <form action="{{route('technics.destroy', $technic->id)}}" method="POST" style="display:inline-block">

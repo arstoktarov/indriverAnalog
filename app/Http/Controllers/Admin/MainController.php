@@ -11,6 +11,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Admin;
+use App\Models\City;
+use App\Models\Material;
+use App\Models\MaterialType;
+use App\Models\Technic;
+use App\Models\TechnicCategory;
+use App\Models\CharacteristicType;
+use App\Models\User;
 
 /**
  * Class MainController
@@ -78,6 +85,13 @@ class MainController extends Controller
      */
     public function viewIndex()
     {
-        return view('admin.index');
+        $data['city'] = City::get()->count();
+        $data['material'] = Material::get()->count();
+        $data['mType'] = MaterialType::get()->count();
+        $data['users'] = User::get()->count();
+        $data['technic'] = Technic::get()->count();
+        $data['category'] = TechnicCategory::get()->count();
+        $data['cType'] = CharacteristicType::get()->count();
+        return view('admin.index', ['data' => $data]);
     }
 }

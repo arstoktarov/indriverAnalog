@@ -27,17 +27,23 @@
                                     <tr>
                                         <th>#</th>
                                         <th>Название</th>
-                                        <th></th>
+                                        <th>Тип</th>
+                                        <th>Значение</th>
+                                        <th>Единица измерения</th>
+                                        <th>Дейсвия</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    @foreach($materials as $material)
+                                    @foreach($characteristics as $characteristic)
                                         <tr>
-                                            <td>{{$material->id}}</td>
-                                            <td>{{$material->title}}</td>
+                                            <td>{{$characteristic->id}}</td>
+                                            <td>{{$characteristic->title}}</td>
+                                            <td>{{$characteristic->type['title']}}</td>
+                                            <td>{{$characteristic->value}}</td>
+                                            <td>{{$characteristic->unit}}</td>
                                             <td>
-                                                <a href="{{route('users.edit', $user->id)}}" class="waves-effect btn btn-primary"><i class="material-icons">edit</i></a>
-                                                <form action="{{route('cities.destroy', $material->id)}}" method="POST" style="display:inline-block">
+                                                <a href="{{route('technicCharacteristics.edit', $characteristic->id)}}" class="waves-effect btn btn-primary"><i class="material-icons">edit</i></a>
+                                                <form action="{{route('technicCharacteristics.destroy', $characteristic->id)}}" method="POST" style="display:inline-block">
                                                     @method('delete')
                                                     @csrf
                                                     <button type="submit" class="waves-effect btn btn-danger"><i class="material-icons">delete</i></button>
@@ -48,7 +54,7 @@
                                     </tbody>
                                 </table>
                             </div>
-                            {{$materials->links()}}
+                            {{$characteristics->links()}}
                         </div>
                     </div>
                 </div>
@@ -62,12 +68,35 @@
                             Добавить город
                         </h5>
                         <div class="modal-body">
-                            <form action="{{route('cities.store')}}" method="post" enctype="multipart/form-data">
+                            <form action="{{route('technicCharacteristics.store')}}" method="post" enctype="multipart/form-data">
                                 {{csrf_field()}}
+                                <input type="hidden" value="{{$id}}" name="technic_id">
                                 <div class="form-group form-float p-t-20">
                                     <div class="form-line">
                                         <input required type="text" class="form-control" id="title" name="title"/>
                                         <label class="form-label">Название</label>
+                                    </div>
+                                </div>
+                                <label class="form-label">Тип</label>
+                                <div class="form-group form-float">
+                                    <div class="form-line">
+                                        <select class="form-control" name="type_id" id="type_id">
+                                            @foreach($types as $type)
+                                                <option value="{{$type->id}}">{{$type->title}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group form-float">
+                                    <div class="form-line">
+                                        <input required type="number" class="form-control" id="value" name="value"/>
+                                        <label class="form-label">Значение</label>
+                                    </div>
+                                </div>
+                                <div class="form-group form-float">
+                                    <div class="form-line">
+                                        <input required type="text" class="form-control" id="unit" name="unit"/>
+                                        <label class="form-label">Единица измерения</label>
                                     </div>
                                 </div>
                                 <div class="modal-footer">

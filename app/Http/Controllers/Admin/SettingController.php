@@ -15,7 +15,9 @@ class SettingController extends Controller
      */
     public function index()
     {
-        //
+        $settings = Setting::orderBy('id', 'desc')->paginate(10);
+
+        return view('admin.setting.index', ['settings' => $settings]);
     }
 
     /**
@@ -36,7 +38,12 @@ class SettingController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $setting = new Setting();
+        $setting->keyword = $request['keyword'];
+        $setting->value = $request['value'];
+        $setting->save();
+
+        return back()->withMessage('Успешно');
     }
 
     /**
@@ -58,7 +65,7 @@ class SettingController extends Controller
      */
     public function edit(Setting $setting)
     {
-        //
+        return view('admin.setting.edit', ['setting' => $setting]);
     }
 
     /**
@@ -70,7 +77,10 @@ class SettingController extends Controller
      */
     public function update(Request $request, Setting $setting)
     {
-        //
+        $setting->keyword = $request['keyword'];
+        $setting->value = $request['value'];
+        $setting->save();
+        return redirect($request['redirects_to'] ?? route('settings.index'));
     }
 
     /**
@@ -81,6 +91,7 @@ class SettingController extends Controller
      */
     public function destroy(Setting $setting)
     {
-        //
+        $setting->delete();
+        return back()->withMessage('Успешно');
     }
 }

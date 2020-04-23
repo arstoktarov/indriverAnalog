@@ -37,6 +37,7 @@ Route::group(['prefix' => '/admin', 'namespace' => 'Admin', 'middleware' => 'acc
     Route::resource('technicCategories', 'TechnicCategoryController');
     Route::resource('technicCharacteristics', 'TechnicCharacteristicController');
     Route::resource('settings', 'SettingController');
+    Route::resource('characterTypes', 'CharacteristicTypeController');
 
 });
 

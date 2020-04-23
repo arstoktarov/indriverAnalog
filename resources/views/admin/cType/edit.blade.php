@@ -1,9 +1,9 @@
-@extends('admin.layouts.app', ['title' => 'Изменить категорию технику', 'active_index' => 'active'])
+@extends('admin.layouts.app', ['title' => 'Изменить тип характеристики', 'active_index' => 'active'])
 @section('content')
     <section class="content">
         <div class="container-fluid">
             <div class="block-header">
-                <h2>Изменить категорию технику</h2>
+                <h2>Изменить тип характеристики</h2>
             </div>
 
             <div class="row clearfix">
@@ -12,18 +12,19 @@
                     <div class="card">
                         <div class="header">
                             <h2>
-                                Изменить категорию технику
+                                Изменить тип характеристики
                             </h2>
                         </div>
                         <div class="body">
-                            <form action="{{route('technicCategories.update', $category)}}" method="post" enctype="multipart/form-data">
+                            <form></form>
+                            <form action="{{route('characterTypes.update', $characterType)}}" method="post" enctype="multipart/form-data">
                                 {{csrf_field()}}
                                 @method('PATCH')
                                 <input type="hidden" name="redirects_to" value="{{URL::previous()}}">
                                 <div class="table-responsive">
                                     <div class="form-group form-float p-t-20">
                                         <div class="form-line">
-                                            <input value="{{$category->title}}" required type="text" class="form-control" id="title" name="title"/>
+                                            <input required value="{{$characterType->title}}" type="text" class="form-control" id="title" name="title"/>
                                             <label class="form-label">Название</label>
                                         </div>
                                     </div>

@@ -71,7 +71,8 @@ class TechnicController extends Controller
      */
     public function edit(Technic $technic)
     {
-        return view('admin.technic.edit', ['technic' => $technic]);
+        $categories = TechnicCategory::orderBy('id', 'desc')->get();
+        return view('admin.technic.edit', ['technic' => $technic, 'categories' => $categories]);
     }
 
     /**
@@ -92,6 +93,7 @@ class TechnicController extends Controller
             }
             $technic['image'] = $this->uploadFile($request['image']);
         }
+        $technic->save();
         return redirect($request['redirects_to'] ?? route('technics.index'));
     }
 

@@ -42,7 +42,7 @@
                                             <td>{{$user->balance}}</td>
                                             <td>{{$user->city['title']}}</td>
                                             <td>
-                                                <a href="{{route('users.edit', $user->id)}}" class="waves-effect btn btn-primary"><i class="material-icons">edit</i></a>
+                                                <a href="{{route('users.edit', $user->id)}}" class="waves-effect btn btn-success"><i class="material-icons">visibility</i></a>
                                                 <form action="{{route('users.destroy', $user->id)}}" method="POST" style="display:inline-block">
                                                     @method('delete')
                                                     @csrf
