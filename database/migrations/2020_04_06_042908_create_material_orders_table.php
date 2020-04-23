@@ -13,7 +13,7 @@ class CreateMaterialOrdersTable extends Migration
      */
     public function up()
     {
-//        Schema::create('material_orders', function (Blueprint $table) {
+//        Schema::create('m_orders', function (Blueprint $table) {
 //            $table->id();
 //            $table->timestamps();
 //        });

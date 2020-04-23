@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateUsersTechnicsTable extends Migration
+class CreateUserMaterialsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,15 +13,13 @@ class CreateUsersTechnicsTable extends Migration
      */
     public function up()
     {
-        Schema::create('users_technics', function (Blueprint $table) {
+        Schema::create('user_materials', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('material_id');
             $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('technic_id');
-            $table->string('image')->nullable();
-            $table->string('description', 500);
             $table->timestamps();
-            $table->foreign('user_id')->references('id')->on('users');
-            $table->foreign('technic_id')->references('id')->on('technics');
+            $table->foreign('material_id')->references('id')->on('materials')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
@@ -32,6 +30,6 @@ class CreateUsersTechnicsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users_technics');
+        Schema::dropIfExists('user_materials');
     }
 }

@@ -35,9 +35,19 @@ Route::group(['namespace' => 'v1\Rest', 'prefix' => 'v1'], function() {
         Route::group(['middleware' => 'userAuth'], function() {
             Route::post('edit', 'UserController@editProfile');
             Route::get('auth', 'UserController@auth');
+
+            Route::post('technics/add', 'TechnicController@addTechnic');
+            Route::get('technics', 'TechnicController@userTechnics');
+            Route::delete('technics/{id}', 'TechnicController@deleteTechnic');
+
+            Route::get('materials', 'MaterialController@userMaterials');
+            Route::post('materials/toggle', 'MaterialController@toggle');
         });
     });
 
     Route::get('materials', 'MaterialController@index');
+    Route::get('materials/types', 'MaterialController@types');
     Route::get('technics', 'TechnicController@index');
+    Route::get('technics/types', 'TechnicController@types');
+
 });

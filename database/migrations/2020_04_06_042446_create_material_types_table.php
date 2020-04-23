@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTCategoriesTable extends Migration
+class CreateMaterialTypesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,13 @@ class CreateTCategoriesTable extends Migration
      */
     public function up()
     {
-        Schema::create('t_categories', function (Blueprint $table) {
+        Schema::create('m_types', function (Blueprint $table) {
             $table->id();
             $table->string('title');
+            $table->string('description', 500)->default(' ');
+            $table->string('image')->nullable();
+            $table->string('charac_title');
+            $table->string('charac_unit');
             $table->timestamps();
         });
     }
@@ -27,6 +31,6 @@ class CreateTCategoriesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('t_categories');
+        Schema::dropIfExists('m_types');
     }
 }
