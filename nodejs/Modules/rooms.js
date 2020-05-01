@@ -20,7 +20,6 @@ class Rooms {
         console.log("Room removed");
     }
 
-    //удаляет объект из комнаты
     removeElem(roomId, elem) {
         if (this.wsRooms.get(roomId)) this.wsRooms.get(roomId).delete(elem);
         if (this.wsRooms.get(roomId).size <= 0) this.removeRoom(roomId);

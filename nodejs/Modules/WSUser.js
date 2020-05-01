@@ -1,11 +1,9 @@
 //консоль с цветами, вместо нудного console.log() ;)
 const consoleMsg = require('./consoleMsg');
 
-//база данных knex
-const db = require('./db.js');
 
 //библотека для создания uuid
-const uuid = require('uuid-random');
+const uuid = require('uuid-random/index');
 
 //дополнительные функции в другом файле
 const functions = require('./additionalFunctions');
@@ -35,10 +33,10 @@ class WSUser {
     //все интервалы должны быть добавлены сюда по примеру ниже.
     // wsUser.interval(function() {}, 1000));
     // Это позволит удалить их в случае если подключение будет потеряно и ws удалится
-    intervals = [];
+    intervals = new Map();
 
     //Аналогично с интервалами.
-    timeouts = [];
+    timeouts = new Map();
 
     //комнаты к которым ws подключен
     rooms = new Set();
@@ -77,11 +75,11 @@ class WSUser {
 
     //Вызов ивента
     callEvent(data) {
-        if (data.event && this.events[data.event]) {
+        if (this.events[data.event]) {
             consoleMsg.info("[EVENT]" + data.event);
-            this.events[data.event](data, data.event);
+            this.events[data.event](data.data, data.event);
         }
-        else this.ws.send(functions.getJsonResponse('error', 'Event not found'));
+        else this.ws.send(functions.errorResponse({"message": 'Event not found'}));
     }
 
     //парсит json
@@ -96,16 +94,16 @@ class WSUser {
     }
 
     //функция для создания интервала который будет подключен к массиву intervals
-    interval(callback, timeout, args) {
+    interval(name, callback, timeout, args) {
         let interval = setInterval(callback, timeout, args);
-        this.intervals.push(interval);
+        this.intervals.set(name, interval);
         return interval;
     }
 
     //функция для создания таймаута который будет подключен к массиву timeouts
-    timeout(callback, timeout, args) {
+    timeout(name, callback, timeout, args) {
         let newTimeout = setTimeout(callback, timeout, args);
-        this.timeouts.push(newTimeout);
+        this.timeouts.set(name, newTimeout);
         return newTimeout;
     }
 
