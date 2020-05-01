@@ -15,9 +15,11 @@
                             <h2>
                                 Список характеристик
                             </h2>
-                            <button title="Добавить статью" type="button" data-toggle="modal" data-target="#defaultModal" class="btn btn-danger btn-circle waves-effect waves-circle waves-float waves-effect m-t--30 pull-right">
-                                <i class="material-icons m-t-5">add</i>
-                            </button>
+                            @if(count($characteristics) == 0)
+                                <button title="Добавить статью" type="button" data-toggle="modal" data-target="#defaultModal" class="btn btn-danger btn-circle waves-effect waves-circle waves-float waves-effect m-t--30 pull-right">
+                                    <i class="material-icons m-t-5">add</i>
+                                </button>
+                            @endif
                         </div>
                         <div class="body">
                             <div class="table-responsive">
@@ -70,13 +72,14 @@
                         <div class="modal-body">
                             <form action="{{route('technicCharacteristics.store')}}" method="post" enctype="multipart/form-data">
                                 {{csrf_field()}}
-                                <input type="hidden" value="{{$id}}" name="technic_id">
+{{--                                <input type="hidden" value="{{$id}}" name="technic_id">--}}
                                 <div class="form-group form-float p-t-20">
                                     <div class="form-line">
                                         <input required type="text" class="form-control" id="title" name="title"/>
                                         <label class="form-label">Название</label>
                                     </div>
                                 </div>
+                                <input type="hidden" value="{{$technic_id}}" name="technic_id">
                                 <label class="form-label">Тип</label>
                                 <div class="form-group form-float">
                                     <div class="form-line">

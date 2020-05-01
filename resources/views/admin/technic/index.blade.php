@@ -26,11 +26,9 @@
                                     <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>Модель</th>
-                                        <th>Спецификация</th>
-                                        <th>Картинка</th>
-                                        <th>Категория</th>
-                                        <th>Характеристика</th>
+                                        <th>Тип</th>
+                                        <th>Значение</th>
+{{--                                        <th>Характеристика</th>--}}
                                         <th>Действия</th>
                                     </tr>
                                     </thead>
@@ -38,17 +36,15 @@
                                     @foreach($technics as $technic)
                                         <tr>
                                             <td>{{$technic->id}}</td>
-                                            <td>{{$technic->model}}</td>
-                                            <td>{{$technic->specification}}</td>
-                                            <td><img style="max-height: 200px; max-width: 200px" src="{{asset($technic->image)}}" alt="Картинка статьи"/></td>
-                                            <td>{{$technic->category['title']}}</td>
-                                            <td>
-                                                <form action="{{route('technicCharacteristics.index', $technic->id)}}" style="display:inline-block">
-                                                    @csrf
-                                                    <input type="hidden" value="{{$technic->id}}" name="id">
-                                                    <button type="submit" class="waves-effect btn btn-danger"><i class="material-icons">visibility</i></button>
-                                                </form>
-                                            </td>
+                                            <td>{{$technic->type['title']}}</td>
+                                            <td>{{$technic->charac_value}}</td>
+{{--                                            <td>--}}
+{{--                                                <form action="{{route('technicCharacteristics.index')}}" style="display:inline-block">--}}
+{{--                                                    @csrf--}}
+{{--                                                    <input type="hidden" value="{{$technic->id}}" name="technic_id">--}}
+{{--                                                    <button type="submit" class="waves-effect btn btn-success">Перейти</button>--}}
+{{--                                                </form>--}}
+{{--                                            </td>--}}
                                             <td>
                                                 <a href="{{route('technics.edit', $technic->id)}}" class="waves-effect btn btn-primary"><i class="material-icons">edit</i></a>
                                                 <form action="{{route('technics.destroy', $technic->id)}}" method="POST" style="display:inline-block">
@@ -79,31 +75,10 @@
                             <form action="{{route('technics.store')}}" method="post" enctype="multipart/form-data">
                                 {{csrf_field()}}
                                 <div class="form-group form-float p-t-20">
-                                    <label class="form-label">Категория</label>
                                     <div class="form-line">
-                                        <select class="form-control" name="category_id" id="category_id">
-                                            @foreach($categories as $category)
-                                                <option value="{{$category->id}}">{{$category->title}}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="form-group form-float p-t-20">
-                                    <label class="form-label">Картинка</label>
-                                    <div ng-class="form-control" class="form-line">
-                                        <input  type="file" class="form-control" id="image" name="image" accept="image/*" />
-                                    </div>
-                                </div>
-                                <div class="form-group form-float p-t-20">
-                                    <div class="form-line">
-                                        <input required type="text" class="form-control" id="model" name="model"/>
-                                        <label class="form-label">Модель</label>
-                                    </div>
-                                </div>
-                                <div class="form-group form-float p-t-20">
-                                    <div class="form-line">
-                                        <input required type="text" class="form-control" id="specification" name="specification"/>
-                                        <label class="form-label">Спецификация</label>
+                                        <input step="0.1" required type="number" class="form-control" id="charac_value" name="charac_value"/>
+                                        <input type="hidden" value="{{$id}}" name="type_id">
+                                        <label class="form-label">Значение</label>
                                     </div>
                                 </div>
                                 <div class="modal-footer">

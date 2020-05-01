@@ -26,10 +26,7 @@
                                     <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>Аватар</th>
-                                        <th>Название</th>
-                                        <th>Бренд</th>
-                                        <th>Описание</th>
+                                        <th>Значение</th>
                                         <th>Тип</th>
                                         <th>Действия</th>
                                     </tr>
@@ -37,17 +34,16 @@
                                     <tbody>
                                     @foreach($materials as $material)
                                         <tr>
+{{--                                            {{dd($material->id)}}--}}
                                             <td>{{$material->id}}</td>
-                                            <td><img width="200" height="100" src="{{asset($material->avatar)}}" alt=""></td>
-                                            <td>{{$material->title}}</td>
-                                            <td>{{$material->brand}}</td>
-                                            <td>{{$material->description}}</td>
+                                            <td>{{$material->charac_value}}</td>
                                             <td>{{$material->type['title']}}</td>
                                             <td>
-                                                <a href="{{route('materials.edit', $material->id)}}" class="waves-effect btn btn-primary"><i class="material-icons">edit</i></a>
-                                                <form action="{{route('materials.destroy', $material->id)}}" method="POST" style="display:inline-block">
+{{--                                                <a href="{{route('materials.edit', $material->id)}}" class="waves-effect btn btn-primary"><i class="material-icons">edit</i></a>--}}
+                                                <form action="{{route('deleteMaterial')}}" method="POST" style="display:inline-block">
                                                     @method('delete')
                                                     @csrf
+                                                    <input type="hidden" value="{{$material->id}}" name="id">
                                                     <button type="submit" class="waves-effect btn btn-danger"><i class="material-icons">delete</i></button>
                                                 </form>
                                             </td>
@@ -73,37 +69,10 @@
                             <form action="{{route('materials.store')}}" method="post" enctype="multipart/form-data">
                                 {{csrf_field()}}
                                 <div class="form-group form-float p-t-20">
-                                    <label class="form-label">Картинка</label>
-                                    <div ng-class="form-control" class="form-line">
-                                        <input  type="file" class="form-control" id="image" name="image" accept="image/*" />
-                                    </div>
-                                </div>
-                                <div class="form-group form-float p-t-20">
-                                    <label class="form-label">Тип материала</label>
                                     <div class="form-line">
-                                        <select class="form-control" name="type_id" id="type_id">
-                                            @foreach($types as $type)
-                                                <option value="{{$type->id}}">{{$type->title}}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="form-group form-float p-t-20">
-                                    <div class="form-line">
-                                        <input required type="text" class="form-control" id="title" name="title"/>
-                                        <label class="form-label">Название</label>
-                                    </div>
-                                </div>
-                                <div class="form-group form-float p-t-20">
-                                    <div class="form-line">
-                                        <input required type="text" class="form-control" id="brand" name="brand"/>
-                                        <label class="form-label">Бренд</label>
-                                    </div>
-                                </div>
-                                <div class="form-group form-float p-t-20">
-                                    <div class="form-line">
-                                        <input required type="text" class="form-control" id="description" name="description"/>
-                                        <label class="form-label">Описание</label>
+                                        <input type="hidden" value="{{$id}}" name="type_id">
+                                        <input required type="number" step="0.1" class="form-control" id="title" name="charac_value"/>
+                                        <label class="form-label">Значение</label>
                                     </div>
                                 </div>
                                 <div class="modal-footer">

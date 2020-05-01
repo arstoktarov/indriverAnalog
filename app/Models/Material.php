@@ -10,7 +10,6 @@ class Material extends Model
     protected static function boot()
     {
         parent::boot();
-
         self::addGlobalScope('typeJoined', function($query) {
             $query->join('m_types', 'm_types.id', 'materials.type_id')
                 ->addSelect('materials.*')->withTypeColumns();

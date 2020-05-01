@@ -14,11 +14,14 @@ class MaterialController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         $materials = Material::with('type')->orderBy('id', 'desc')->paginate(10);
+        if($request['id']){
+            $materials = Material::where('type_id', $request->id)->with('type')->orderBy('id', 'desc')->paginate(10);
+        }
         $types = MaterialType::orderBy('id', 'desc')->get();
-        return view('admin.material.index', ['materials' => $materials, 'types' => $types]);
+        return view('admin.material.index', ['materials' => $materials, 'types' => $types, 'id' => $request['id']]);
     }
 
     /**
@@ -41,12 +44,7 @@ class MaterialController extends Controller
     {
         $material = new Material();
         $material->type_id = $request['type_id'];
-        $material->title = $request['title'];
-        $material->brand = $request['brand'];
-        $material->description = $request['description'];
-        if($request['image']){
-            $material->avatar = $this->uploadFile($request['image']);
-        }
+        $material->charac_value = $request['charac_value'];
         $material->save();
         return back()->withMessage('Успешно');
     }
@@ -70,8 +68,8 @@ class MaterialController extends Controller
      */
     public function edit(Material $material)
     {
-        $types = MaterialType::orderBy('id', 'desc')->get();
-        return view('admin.material.edit', ['material' => $material, 'types' => $types]);
+        dd(1);
+        return view('admin.material.edit', ['material' => $material]);
     }
 
     /**
@@ -83,16 +81,7 @@ class MaterialController extends Controller
      */
     public function update(Request $request, Material $material)
     {
-        $material->type_id = $request['type_id'];
-        $material->title = $request['title'];
-        $material->brand = $request['brand'];
-        $material->description = $request['description'];
-        if ($request->file('image')) {
-            if (!is_null($material['avatar'])) {
-                $this->deleteFile($material['avatar']);
-            }
-            $material['avatar'] = $this->uploadFile($request['image'], 'material');
-        }
+        $material->charac_value = $request['charac_value'];
         $material->save();
         return redirect($request['redirects_to'] ?? route('materials.index'));
     }
@@ -107,5 +96,14 @@ class MaterialController extends Controller
     {
         $material->delete();
         return back()->withMessage('Успешно удалено!');
+    }
+
+    public function deleteMaterial(Request $request)
+    {
+        $material = Material::find($request['id']);
+        if($material){
+            $material->delete();
+            return back()->withMessage('Успешно удалено!');
+        }
     }
 }

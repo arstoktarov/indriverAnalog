@@ -14,12 +14,15 @@ class TechnicController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $technics = Technic::with('category')->orderBy('id', 'desc')->paginate(10);
+        $technics = Technic::with('type')->orderBy('id', 'desc')->paginate(10);
+        if($request['id']){
+            $technics = Technic::where('type_id', $request['id'])->with('type')->orderBy('id', 'desc')->paginate(10);
+        }
         $categories = TechnicCategory::orderBy('id', 'desc')->get();
 
-        return view('admin.technic.index', ['technics' => $technics, 'categories' => $categories]);
+        return view('admin.technic.index', ['technics' => $technics, 'categories' => $categories, 'id' => $request['id']]);
     }
 
     /**
@@ -41,12 +44,8 @@ class TechnicController extends Controller
     public function store(Request $request)
     {
         $technic = new Technic();
-        $technic->category_id = $request['category_id'];
-        $technic->model = $request['model'];
-        $technic->specification = $request['specification'];
-        if($request['image']){
-            $technic->image = $this->uploadFile($request['image'], 'technics');
-        }
+        $technic->type_id = $request['type_id'];
+        $technic->charac_value = $request['charac_value'];
         $technic->save();
 
         return back()->withMessage('Успешно создано!');
@@ -84,15 +83,7 @@ class TechnicController extends Controller
      */
     public function update(Request $request, Technic $technic)
     {
-        $technic->category_id = $request['category_id'];
-        $technic->model = $request['model'];
-        $technic->specification = $request['specification'];
-        if ($request->file('image')) {
-            if (!is_null($technic['path'])) {
-                $this->deleteFile($technic['image']);
-            }
-            $technic['image'] = $this->uploadFile($request['image']);
-        }
+        $technic->charac_value = $request['charac_value'];
         $technic->save();
         return redirect($request['redirects_to'] ?? route('technics.index'));
     }

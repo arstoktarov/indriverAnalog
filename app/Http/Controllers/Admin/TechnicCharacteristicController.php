@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\TechnicCharacteristics;
+use App\Models\Technic;
+use App\Models\TechnicType;
 use App\Models\CharacteristicType;
 use Illuminate\Http\Request;
 
@@ -16,12 +18,26 @@ class TechnicCharacteristicController extends Controller
      */
     public function index(Request $request)
     {
-        if($request['id'])
+        $characteristics = TechnicCharacteristics::with('type')->orderBy('id', 'desc')->paginate(10);
+        if($request['technic_id'])
         {
-            $characteristics = TechnicCharacteristics::where('technic_id', $request['id'])->with('type')->orderBy('id', 'desc')->paginate(10);
-            $types = CharacteristicType::orderBy('title')->get();
-            return view('admin.characteristic.index', ['characteristics' => $characteristics, 'types' => $types, 'id' => $request['id']]);
+            $technic = $request['technic_id'];
+            $characteristics = TechnicCharacteristics::where('technic_id', $request['technic_id'])->with('type')->orderBy('id', 'desc')->paginate(10);
         }
+        if($request['type_id'])
+        {
+            $technics = Technic::where('type_id', $request['type_id'])->get();
+            $characteristics = TechnicCharacteristics::where('type_id', $request['type_id'])->with('type')->orderBy('id', 'desc')->paginate(10);
+        }
+        $types = TechnicType::orderBy('title')->get();
+        return view('admin.characteristic.index', [
+            'characteristics' => $characteristics,
+            'types' => $types,
+            'technic_id' => $request['technic_id'],
+            'type_id' => $request['type_id'],
+            'technic' => $technic ?? null,
+            'technics' => $technics ?? null
+        ]);
     }
 
     /**
@@ -100,9 +116,9 @@ class TechnicCharacteristicController extends Controller
      * @param  \App\Models\TechnicCharacteristics  $technicCharacteristics
      * @return \Illuminate\Http\Response
      */
-    public function destroy(TechnicCharacteristics $technicCharacteristics)
+    public function destroy(TechnicCharacteristics $technicCharacteristic)
     {
-        $technicCharacteristics->delete();
+        $technicCharacteristic->delete();
         return back()->withMessage('Успешно!');
     }
 }

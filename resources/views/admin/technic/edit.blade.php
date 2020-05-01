@@ -20,35 +20,11 @@
                                 {{csrf_field()}}
                                 @method('PATCH')
                                 <input type="hidden" name="redirects_to" value="{{URL::previous()}}">
-                                <p>Картинка</p>
-                                <img width="200" src="{{asset($technic->image)}}" alt="">
                                 <div class="table-responsive">
                                     <div class="form-group form-float p-t-20">
                                         <div class="form-line">
-                                            <p>Изменить картинку</p>
-                                            <input type="file" class="form-control" id="image" name="image"/>
-                                        </div>
-                                    </div>
-                                    <div class="form-group form-float p-t-20">
-                                        <label class="form-label">Категория</label>
-                                        <div class="form-line">
-                                            <select class="form-control" name="category_id" id="category_id">
-                                                @foreach($categories as $category)
-                                                    <option {{$category->id === $technic->category_id}} value="{{$category->id}}">{{$category->title}}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="form-group form-float p-t-20">
-                                        <div class="form-line">
-                                            <input value="{{$technic->model}}" required type="text" class="form-control" id="model" name="model"/>
-                                            <label class="form-label">Модель</label>
-                                        </div>
-                                    </div>
-                                    <div class="form-group form-float p-t-20">
-                                        <div class="form-line">
-                                            <input value="{{$technic->specification}}" required type="text" class="form-control" id="specification" name="specification"/>
-                                            <label class="form-label">Спецификация</label>
+                                            <input value="{{$technic->charac_value}}" required type="text" class="form-control" id="charac_value" name="charac_value"/>
+                                            <label class="form-label">Значение</label>
                                         </div>
                                     </div>
                                     <button type="submit" class="btn btn-link waves-effect">Изменить</button>

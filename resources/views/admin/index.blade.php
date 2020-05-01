@@ -16,10 +16,6 @@
                                 </tr>
                                 <tr>
                                     <td>Количество материалов - </td>
-                                    <td>{{$data['material']}}</td>
-                                </tr>
-                                <tr>
-                                    <td>Количество типов материала - </td>
                                     <td>{{$data['mType']}}</td>
                                 </tr>
                                 <tr>
@@ -28,15 +24,7 @@
                                 </tr>
                                 <tr>
                                     <td>Количество техник - </td>
-                                    <td>{{$data['technic']}}</td>
-                                </tr>
-                                <tr>
-                                    <td>Количество категории техник - </td>
-                                    <td>{{$data['category']}}</td>
-                                </tr>
-                                <tr>
-                                    <td>Количество типов характеристики - </td>
-                                    <td>{{$data['cType']}}</td>
+                                    <td>{{$data['tType']}}</td>
                                 </tr>
                             </table>
                         </div>

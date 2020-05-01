@@ -121,7 +121,7 @@
                 </li> {{--USERS--}}
                 <li class="{{request()->is('admin/cities*') ? 'active' : ''}}">
                     <a href="{{route('cities.index')}}">
-                        <i class="material-icons">people</i>
+                        <i class="material-icons">location_city</i>
                         <span>Города</span>
                     </a>
                 </li> {{--CITY--}}
@@ -132,40 +132,38 @@
 {{--                    </a>--}}
 {{--                </li>--}}
                 <li class="{{request()->is('admin/materials*') || request()->is('admin/materialTypes*') ? 'active' : ''}}">
-                    <a href="javascript:void(0);" class="menu-toggle">
-                        <i class="material-icons">home</i>
+                    <a href="{{route('materialTypes.index')}}">
+                        <i class="material-icons">subtitles</i>
                         <span>Материалы</span>
                     </a>
-                    <ul class="ml-menu">
-                        <li class="{{request()->is('admin/materials*') ? 'active' : ''}}">
-                            <a href="{{route('materials.index')}}">
-                                <span>Все</span>
-                            </a>
-                        </li>
-                        <li class="{{request()->is('admin/materialTypes*') ? 'active' : ''}}">
-                            <a href="{{route('materialTypes.index')}}">
-                                <span>Типы</span>
-                            </a>
-                        </li>
-                    </ul>
                 </li>{{--MATERIALS--}}
-                <li class="{{request()->is('admin/technics*') || request()->is('admin/technicCategories*') || request()->is('admin/technicCharacteristics*') ? 'active' : ''}}">
-                    <a href="javascript:void(0);" class="menu-toggle">
-                        <i class="material-icons">home</i>
+                <li class="{{request()->is('admin/technics*') || request()->is('admin/technicCategories*') || request()->is('admin/technicCharacteristics*') || request()->is('admin/technicTypes*') ? 'active' : ''}}">
+                    <a href="{{route('technicTypes.index')}}">
+                        <i class="material-icons">build</i>
                         <span>Техника</span>
                     </a>
-                    <ul class="ml-menu">
-                        <li class="{{request()->is('admin/technics*') ? 'active' : ''}}">
-                            <a href="{{route('technics.index')}}">
-                                <span>Все</span>
-                            </a>
-                        </li>
-                        <li class="{{request()->is('admin/technicCategories*') ? 'active' : ''}}">
-                            <a href="{{route('technicCategories.index')}}">
-                                <span>Категории</span>
-                            </a>
-                        </li>
-                    </ul>
+{{--                    <ul class="ml-menu">--}}
+{{--                        <li class="{{request()->is('admin/technics*') ? 'active' : ''}}">--}}
+{{--                            <a href="{{route('technics.index')}}">--}}
+{{--                                <span>Все</span>--}}
+{{--                            </a>--}}
+{{--                        </li>--}}
+{{--                        <li class="{{request()->is('admin/technicCategories*') ? 'active' : ''}}">--}}
+{{--                            <a href="{{route('technicCategories.index')}}">--}}
+{{--                                <span>Категории</span>--}}
+{{--                            </a>--}}
+{{--                        </li>--}}
+{{--                        <li class="{{request()->is('admin/technicCharacteristics*') ? 'active' : ''}}">--}}
+{{--                            <a href="{{route('technicCharacteristics.index')}}">--}}
+{{--                                <span>Характеристика</span>--}}
+{{--                            </a>--}}
+{{--                        </li>--}}
+{{--                        <li class="{{request()->is('admin/technicTypes*') ? 'active' : ''}}">--}}
+{{--                            <a href="{{route('technicTypes.index')}}">--}}
+{{--                                <span>Все</span>--}}
+{{--                            </a>--}}
+{{--                        </li>--}}
+{{--                    </ul>--}}
                 </li>{{--TECHNICS--}}
                 <li class="{{request()->is('admin/settings*') ? 'active' : ''}}">
                     <a href="{{route('settings.index')}}">
@@ -173,12 +171,12 @@
                         <span>Настройки</span>
                     </a>
                 </li> {{--SETTINGS--}}
-                <li class="{{request()->is('admin/characterTypes*') ? 'active' : ''}}">
-                    <a href="{{route('characterTypes.index')}}">
-                        <i class="material-icons">people</i>
-                        <span>Типы характеристик</span>
-                    </a>
-                </li> {{--SETTINGS--}}
+{{--                <li class="{{request()->is('admin/characterTypes*') ? 'active' : ''}}">--}}
+{{--                    <a href="{{route('characterTypes.index')}}">--}}
+{{--                        <i class="material-icons">people</i>--}}
+{{--                        <span>Типы характеристик</span>--}}
+{{--                    </a>--}}
+{{--                </li> --}}{{--SETTINGS--}}
             </ul>
         </div>
         <!-- #Menu -->

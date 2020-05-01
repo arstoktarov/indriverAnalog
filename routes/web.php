@@ -31,6 +31,7 @@ Route::group(['prefix' => '/admin', 'namespace' => 'Admin', 'middleware' => 'acc
 
     Route::resource('users', 'UserController');
     Route::resource('cities', 'CityController');
+    Route::delete('materialDelete', 'MaterialController@deleteMaterial')->name("deleteMaterial");
     Route::resource('materials', 'MaterialController');
     Route::resource('materialTypes', 'MaterialTypeController');
     Route::resource('technics', 'TechnicController');
@@ -38,6 +39,7 @@ Route::group(['prefix' => '/admin', 'namespace' => 'Admin', 'middleware' => 'acc
     Route::resource('technicCharacteristics', 'TechnicCharacteristicController');
     Route::resource('settings', 'SettingController');
     Route::resource('characterTypes', 'CharacteristicTypeController');
+    Route::resource('technicTypes', 'TechnicTypeController');
 
 });
 

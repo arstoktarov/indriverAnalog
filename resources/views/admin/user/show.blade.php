@@ -38,7 +38,21 @@
                                         </tr>
                                         <tr>
                                             <td>Техника пользователя</td>
-{{--                                            <td>{{$user->technics}}</td>--}}
+                                            <td>
+                                                @foreach($user->technics as $technic)
+                                                    {{$technic['charac_value']}}
+                                                @endforeach
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Материалы пользователя</td>
+                                            <td>
+                                                @foreach($user->materials as $material)
+                                                    <div class="row">
+                                                        <div>{{$material['charac_title']}} - {{$material['charac_value']}} {{$material['charac_unit']}}</div>
+                                                    </div>
+                                                @endforeach
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>

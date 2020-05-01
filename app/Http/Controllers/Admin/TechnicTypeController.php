@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\MaterialType;
+use App\Models\TechnicType;
 use Illuminate\Http\Request;
 
-class MaterialTypeController extends Controller
+class TechnicTypeController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,9 +15,9 @@ class MaterialTypeController extends Controller
      */
     public function index()
     {
-        $types = MaterialType::orderBy('title')->paginate(10);
+        $types = TechnicType::orderBy('title')->paginate(10);
 
-        return view('admin.mType.index', ['types' => $types]);
+        return view('admin.tType.index', ['types' => $types]);
     }
 
     /**
@@ -38,26 +38,25 @@ class MaterialTypeController extends Controller
      */
     public function store(Request $request)
     {
-        $type = new MaterialType();
+        $type = new TechnicType();
         $type->title = $request['title'];
         $type->description = $request['description'];
         $type->charac_title = $request['charac_title'];
         $type->charac_unit = $request['charac_unit'];
         if($request['image']){
-            $type->image = $this->uploadFile($request['image'], 'material');
+            $type->image = $this->uploadFile($request['image']);
         }
         $type->save();
-
         return back()->withMessage('Успешно!');
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\MaterialType  $materialType
+     * @param  \App\Models\TechnicType  $technicType
      * @return \Illuminate\Http\Response
      */
-    public function show(MaterialType $materialType)
+    public function show(TechnicType $technicType)
     {
         //
     }
@@ -65,46 +64,46 @@ class MaterialTypeController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\MaterialType  $materialType
+     * @param  \App\Models\TechnicType  $technicType
      * @return \Illuminate\Http\Response
      */
-    public function edit(MaterialType $materialType)
+    public function edit(TechnicType $technicType)
     {
-        return view('admin.mType.edit', ['type' => $materialType]);
+        return view('admin.tType.edit', ['technicType' => $technicType]);
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\MaterialType  $materialType
+     * @param  \App\Models\TechnicType  $technicType
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, MaterialType $materialType)
+    public function update(Request $request, TechnicType $technicType)
     {
-        $materialType->title = $request['title'];
-        $materialType->description = $request['description'];
-        $materialType->charac_title = $request['charac_title'];
-        $materialType->charac_unit = $request['charac_unit'];
+        $technicType->title = $request['title'];
+        $technicType->description = $request['description'];
+        $technicType->charac_title = $request['charac_title'];
+        $technicType->charac_unit = $request['charac_unit'];
         if ($request->file('image')) {
-            if (!is_null($materialType['image'])) {
-                $this->deleteFile($materialType['image']);
+            if (!is_null($technicType['image'])) {
+                $this->deleteFile($technicType['image']);
             }
-            $materialType['image'] = $this->uploadFile($request['image'], 'material');
+            $technicType['image'] = $this->uploadFile($request['image']);
         }
-        $materialType->save();
-        return redirect($request['redirects_to'] ?? route('materialTypes.index'));
+        $technicType->save();
+        return redirect($request['redirects_to'] ?? route('technicTypes.index'));
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\MaterialType  $materialType
+     * @param  \App\Models\TechnicType  $technicType
      * @return \Illuminate\Http\Response
      */
-    public function destroy(MaterialType $materialType)
+    public function destroy(TechnicType $technicType)
     {
-        $materialType->delete();
-        return back()->withMessage('Успешно!');
+        $technicType->delete();
+        return back()->withMessage('Успешно удалено!');
     }
 }
