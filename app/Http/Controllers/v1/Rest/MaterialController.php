@@ -48,17 +48,46 @@ class MaterialController extends Controller
         if ($validator->fails()) return $this->Result(400, null, $validator->errors()->first());
 
         $material = Material::find($request['material_id']);
-
         if (!$material) return $this->Result(400, null, 'Material not found'); // TODO add localized answer
 
         $user->materials()->toggle($material);
         return response()->json($material);
     }
 
+    public function addMaterial(Request $request) {
+        $user = $request['user'];
+        $rules = [
+            'material_id' => 'required|exists:materials,id',
+            'description' => 'string|max:255'
+        ];
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) return $this->Result(400, null, $validator->errors()->first());
+
+        $material = Material::find($request['material_id']);
+        if (!$material) return $this->Result(400, null, 'Material not found'); // TODO add localized answer
+
+        $user->materials()->syncWithoutDetaching([
+            $request['material_id'] => [
+                'description' => $request['description']
+            ],
+        ]);
+
+        return response()->json();
+
+
+    }
+
+    public function deleteMaterial($id, Request $request) {
+        $user = $request['user'];
+
+        $user->materials()->detach($id);
+    }
+
     public function userMaterials(Request $request) {
         $user = $request['user'];
 
-        $materials = $user->materials()->get()->makeHidden('pivot');
+        $materials = $user->materials()->with('type')->select()->get()->makeHidden('pivot');
 
         return response()->json($materials);
     }

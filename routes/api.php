@@ -40,8 +40,9 @@ Route::group(['namespace' => 'v1\Rest', 'prefix' => 'v1'], function() {
             Route::get('technics', 'TechnicController@userTechnics');
             Route::delete('technics/{id}', 'TechnicController@deleteTechnic');
 
+            Route::post('materials/add', 'MaterialController@addMaterial');
             Route::get('materials', 'MaterialController@userMaterials');
-            Route::post('materials/toggle', 'MaterialController@toggle');
+            Route::delete('materials/{id}', 'MaterialController@deleteMaterial');
         });
     });
 

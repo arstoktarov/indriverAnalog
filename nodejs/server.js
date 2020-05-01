@@ -1,19 +1,19 @@
 
 //knex database connection
-const db = require('./db');
+const db = require('./Modules/db');
 
 //validator https://validatejs.org/
 const validate = require('validate.js');
 
 //console with colors
-const consoleMsg = require('./consoleMsg');
-const wsUserModule = require('./WSUser');
+const consoleMsg = require('./Modules/consoleMsg');
+const wsUserModule = require('./Modules/WSUser');
 
 //just additional functions in another file.
-const functions = require('./additionalFunctions');
+const functions = require('./Modules/additionalFunctions');
 
 //custom rooms realization
-const roomModule = require('./rooms');
+const roomModule = require('./Modules/rooms');
 
 //express app
 const port = 3000;
