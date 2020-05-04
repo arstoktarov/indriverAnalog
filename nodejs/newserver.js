@@ -3,49 +3,43 @@ const validate = require('validate.js');
 const consoleMsg = require('./Modules/consoleMsg');
 const wsUserModule = require('./Modules/WSUser');
 const functions = require('./Modules/additionalFunctions');
-const app = require('express')();
-let server = require('http').Server(app);
-const port = 3000;
-const WebSocket = require('ws');
-const wss = new WebSocket.Server({
-    port: 8080,
-});
-server.listen(port, 'localhost');
-consoleMsg.info('Server started at ' + port);
-const roomModule = require('./Modules/rooms');
-let rooms = new roomModule.roomsModel(wss);
+const { app, server } = require('./Loaders/Express');
+const { Websocket, wss, rooms } = require('./Loaders/Websocket');
+const os = require('os');
 
 let sockets = new Set();
 let realUsers = new Map();
 let activeOrders = new Map();
 
 
-const User = require('./Models/User');
+const models = require('./Models/Models');
+
 
 
 wss.on('connection',  function connection(ws) {
-    let wsUser = new wsUserModule.User(ws);
-    sockets.add(wsUser);
+    let socket = new wsUserModule.User(ws);
+    sockets.add(socket);
     consoleMsg.info('New connection catched. Current clients count: ' + wss.clients.size);
 
-    wsUser.ws.ping();
-    wsUser.isOnline = true;
+    socket.ws.ping();
+    socket.isOnline = true;
     let pinger = null;
-    wsUser.on('pong', function() {
+
+    socket.on('pong', function() {
         clearTimeout(pinger);
-        wsUser.isOnline = true;
+        socket.isOnline = true;
         pinger = setTimeout(function() {
-            if (wsUser.isOnline === false) {
-                wsUser.ws.close();
+            if (socket.isOnline === false) {
+                socket.ws.close();
             }
             else {
-                wsUser.isOnline = false;
-                wsUser.ws.ping();
+                socket.isOnline = false;
+                socket.ws.ping();
             }
         }, 1000);
     });
 
-    wsUser.on('message', function (json) {
+    socket.on('message', function (json) {
         consoleMsg.log("MESSAGE: " + json);
         let data = wsUserModule.User.parseJson(json);
         let constraints = {
@@ -55,70 +49,96 @@ wss.on('connection',  function connection(ws) {
         let errors = validate(data, constraints);
 
         if (errors !== undefined) {
-            wsUser.send(functions.errorResponse(errors));
+            socket.send(functions.errorResponse(errors));
             return;
         }
 
-        wsUser.callEvent(data);
+        socket.callEvent(data);
     });
 
-    wsUser.on('close', function(reason) {
-        consoleMsg.log('User ' + ((wsUser.uuid) ? wsUser.uuid : 'anon') + ' has disconnected with reasonCode ' + reason);
+    socket.on('close', function(reason) {
+        consoleMsg.log('User ' + ((socket.uuid) ? socket.uuid : 'anon') + ' has disconnected with reasonCode ' + reason);
 
-        wsUser.rooms.forEach(function(room) {
-            rooms.removeElem(room, wsUser);
+        socket.rooms.forEach(function(room) {
+            rooms.removeElem(room, socket);
         });
         clearTimeout(pinger);
-        wsUser.destroy();
-        sockets.delete(wsUser);
-        wsUser = null;
+        socket.destroy();
+        sockets.delete(socket);
+        socket = null;
     });
 
     //pong from user
-    wsUser.addEventListener("connection", async function(data, eventName) {
+    socket.addEventListener("connection", async function(data, eventName) {
         let constraints = {
             "token": {presence: true}
         };
         let errors = validate(data, constraints);
         if (errors !== undefined) {
-            wsUser.send(functions.errorResponse(errors));
+            socket.send(functions.errorResponse(errors));
             return;
         }
 
+
     });
 
-    wsUser.addEventListener("getMyData", function(data, eventName) {
-        wsUser.send(functions.response(eventName, wsUser.getData()));
+    socket.addEventListener("getMyData", function(data, eventName) {
+        socket.send(functions.response(eventName, socket.getData()));
     });
 
-    wsUser.addEventListener("location", function(data, eventName) {
+    socket.addEventListener("location", function(data, eventName) {
         let constraints = {
             "lat": {presence: true},
             'long': {presence: true}
         };
         let errors = validate(data, constraints);
         if (errors !== undefined) {
-            wsUser.send(functions.errorResponse(errors));
+            socket.send(functions.errorResponse(errors));
             return;
         }
 
-        wsUser.location = data;
+        socket.location = data;
     });
 
-    //wsUser.addEventListener("");
-    wsUser.interval('sendOrders', function() {
+    socket.addEventListener("makeOrder", function() {
+        let constraints = {
+            'city_id': {presence:true},
+            'address.lat': {presence:true},
+            'address.long': {presence:true},
+            'technic_id': {presence:true},
+            'price': {presence:true},
+            'description': {presence:true},
+        };
+        let errors = validate(data, constraints);
+        if (errors !== undefined) {
+            socket.send(functions.errorResponse(errors));
+            return;
+        }
+
+        let order = models.Order.query().insert({
+
+        });
+    });
+
+    socket.interval('sendOrders', function() {
         let response = functions.response('orders', activeOrders);
-        wsUser.send(response);
+        socket.send(response);
     }, 5000);
 });
+
 
 setInterval(function() {
     //consoleMsg.log("realUsers: " + JSON.stringify(functions.pluckAssoc(functions.pluckAssoc(realUsers, 'user'), 'id')));
     consoleMsg.log("sockets: " + JSON.stringify(functions.pluck(sockets, 'uuid')));
-    consoleMsg.log("rooms: " + Array.from(rooms.getWsRooms().keys()));
+    //consoleMsg.log("rooms: " + Array.from(rooms.getWsRooms().keys()));
+    //consoleMsg.info(`Total memory: ${os.totalmem()}`);
+    //consoleMsg.info(`Free memory: ${os.freemem()}`);
 }, 10000);
 
 wss.on('close', function() {
     consoleMsg.log("Server disconnected: " + wss.clients.size);
 });
+
+
+console.log(wss);
 

@@ -43,4 +43,4 @@ class Rooms {
 
 }
 
-module.exports.roomsModel = Rooms;
+module.exports = Rooms;

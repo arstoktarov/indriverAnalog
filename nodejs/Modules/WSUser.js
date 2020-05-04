@@ -100,11 +100,19 @@ class WSUser {
         return interval;
     }
 
+    clearInterval(name) {
+        clearInterval(this.intervals.get(name));
+    }
+
     //функция для создания таймаута который будет подключен к массиву timeouts
     timeout(name, callback, timeout, args) {
         let newTimeout = setTimeout(callback, timeout, args);
         this.timeouts.set(name, newTimeout);
         return newTimeout;
+    }
+
+    clearTimeout(name) {
+        clearTimeout(this.timeouts.get(name));
     }
 
     //функция которая удаляет все интервалы таймауты и остальные данные
@@ -148,8 +156,8 @@ class WSUser {
                 count: this.rooms.size,
                 data: Array.from(this.rooms)
             },
-            timeoutsCount: this.timeouts.length,
-            intervalsCount: this.intervals.length,
+            timeouts: Array.from(this.timeouts.keys()),
+            intervals: Array.from(this.intervals.keys()),
         }
     }
 }

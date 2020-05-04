@@ -1,1 +1,2 @@
-module.exports.UserModel = require('User');
+module.exports.User = require('User');
+module.exports.Order = require('Order');
