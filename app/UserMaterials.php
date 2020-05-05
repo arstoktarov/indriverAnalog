@@ -13,7 +13,8 @@ class UserMaterials extends Model
     protected $hidden = ['pivot'];
 
     public function setImageAttribute($file) {
-        //Storage::disk('public')->delete($this->image);
-        $this->image = Storage::disk('public')->put(User::MATERIAL_IMAGES_PATH, $file);
+        Storage::disk('public')->delete($this->attributes['image']);
+        $filePath = Storage::disk('public')->put(User::MATERIAL_IMAGES_PATH, $file);
+        $this->attributes['image'] = $filePath;
     }
 }
