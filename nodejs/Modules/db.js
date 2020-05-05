@@ -13,3 +13,6 @@ const knex = require('knex')({
     }
 });
 Model.knex(knex);
+
+module.exports.Model = Model;
+module.exports.knex = knex;

@@ -5,11 +5,13 @@ const wsUserModule = require('./Modules/WSUser');
 const functions = require('./Modules/additionalFunctions');
 const { app, server } = require('./Loaders/Express');
 const { Websocket, wss, rooms } = require('./Loaders/Websocket');
+const uuid = require('uuid-random/index');
 const os = require('os');
 
 let sockets = new Set();
 let realUsers = new Map();
 let activeOrders = new Map();
+let orders = new Map();
 
 
 const models = require('./Models/Models');
@@ -100,12 +102,13 @@ wss.on('connection',  function connection(ws) {
         socket.location = data;
     });
 
-    socket.addEventListener("makeOrder", function() {
+    socket.addEventListener("makeOrder", async function(data, eventName) {
         let constraints = {
             'city_id': {presence:true},
+            'technic_id': {presence:true},
+            'address.title': {presence:true},
             'address.lat': {presence:true},
             'address.long': {presence:true},
-            'technic_id': {presence:true},
             'price': {presence:true},
             'description': {presence:true},
         };
@@ -115,21 +118,39 @@ wss.on('connection',  function connection(ws) {
             return;
         }
 
-        let order = models.Order.query().insert({
+        let order = {
+            uuid: uuid(),
+            city_id: data['city_id'],
+            technic_id: data['technic_id'],
+            address: data['address']['title'],
+            lat: data['address']['lat'],
+            long: data['address']['long'],
+            price: data['price'],
+            description: data['description'],
+            created_at: Date.now(),
+            updated_at: Date.now(),
+        };
 
-        });
+        orders.set(order.uuid, order);
+
+        socket.send(functions.response('makeOrder', order));
     });
 
-    socket.interval('sendOrders', function() {
-        let response = functions.response('orders', activeOrders);
-        socket.send(response);
-    }, 5000);
+    socket.addEventListener("acceptOrder", async function(data, eventName) {
+
+    });
+
+    // socket.interval('sendOrders', function() {
+    //     let response = functions.response('orders', activeOrders);
+    //     socket.send(response);
+    // }, 5000);
 });
 
 
 setInterval(function() {
     //consoleMsg.log("realUsers: " + JSON.stringify(functions.pluckAssoc(functions.pluckAssoc(realUsers, 'user'), 'id')));
     consoleMsg.log("sockets: " + JSON.stringify(functions.pluck(sockets, 'uuid')));
+    consoleMsg.log("orders: " + Array.from(orders.keys()));
     //consoleMsg.log("rooms: " + Array.from(rooms.getWsRooms().keys()));
     //consoleMsg.info(`Total memory: ${os.totalmem()}`);
     //consoleMsg.info(`Free memory: ${os.freemem()}`);
@@ -138,7 +159,4 @@ setInterval(function() {
 wss.on('close', function() {
     consoleMsg.log("Server disconnected: " + wss.clients.size);
 });
-
-
-console.log(wss);
 

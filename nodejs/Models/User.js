@@ -1,4 +1,4 @@
-const { Model } = require('objection');
+const { Model } = require('../Modules/db');
 
 class User extends Model {
     static get tableName() {

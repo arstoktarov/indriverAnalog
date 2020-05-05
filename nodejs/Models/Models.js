@@ -1,2 +1,5 @@
-module.exports.User = require('User');
-module.exports.Order = require('Order');
+const User = require('./User');
+const Order = require('./Order');
+
+module.exports.User = User;
+module.exports.Order = Order;

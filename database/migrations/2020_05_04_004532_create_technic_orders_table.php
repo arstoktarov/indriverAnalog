@@ -13,8 +13,9 @@ class CreateTechnicOrdersTable extends Migration
      */
     public function up()
     {
-        Schema::create('technic_orders', function (Blueprint $table) {
+        Schema::create('t_orders', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid');
             $table->unsignedBigInteger('city_id');
             $table->unsignedBigInteger('technic_id');
             $table->string('address')->nullable();
@@ -33,6 +34,6 @@ class CreateTechnicOrdersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('technic_orders');
+        Schema::dropIfExists('t_orders');
     }
 }

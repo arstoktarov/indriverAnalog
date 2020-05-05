@@ -1,6 +1,8 @@
+const { Model } = require('../Modules/db');
+
 class Order extends Model {
     static get tableName() {
-        return 'technic_orders';
+        return 't_orders';
     }
 
     createOrder() {

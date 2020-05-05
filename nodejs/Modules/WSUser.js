@@ -16,6 +16,7 @@ const TYPE_COURIER = "courier";
 class WSUser {
     isOnline = false;
     user = null;
+    myOrders = new Set();
 
     //Тип: user или courier
     //type = "anonymous";
@@ -148,6 +149,7 @@ class WSUser {
         return {
             user: this.user,
             uuid: this.uuid,
+            myOrders: this.myOrders,
             events: Object.keys(this.events),
             isOnline: this.isOnline,
             type: this.type,
