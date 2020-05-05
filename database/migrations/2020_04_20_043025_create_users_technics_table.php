@@ -18,7 +18,7 @@ class CreateUsersTechnicsTable extends Migration
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('technic_id');
             $table->string('image')->nullable();
-            $table->string('description', 500);
+            $table->longText('description')->nullable();
             $table->timestamps();
             $table->foreign('user_id')->references('id')->on('users');
             $table->foreign('technic_id')->references('id')->on('technics');

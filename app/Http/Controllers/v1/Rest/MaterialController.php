@@ -5,8 +5,10 @@ namespace App\Http\Controllers\v1\Rest;
 use App\Http\Controllers\Controller;
 use App\Models\Material;
 use App\Models\MaterialType;
+use App\Models\User;
 use App\UserMaterials;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class MaterialController extends Controller
@@ -58,6 +60,7 @@ class MaterialController extends Controller
         $user = $request['user'];
         $rules = [
             'material_id' => 'required|exists:materials,id',
+            'image' => 'image',
             'description' => 'string|max:255'
         ];
         $validator = Validator::make($request->all(), $rules);
@@ -67,15 +70,13 @@ class MaterialController extends Controller
         $material = Material::find($request['material_id']);
         if (!$material) return $this->Result(400, null, 'Material not found'); // TODO add localized answer
 
-        $user->materials()->syncWithoutDetaching([
-            $request['material_id'] => [
-                'description' => $request['description']
-            ],
-        ]);
+        $userMaterial = UserMaterials::where('user_id', $user->id)->where('material_id', $material->id)->first();
 
-        return response()->json();
+        if (!$userMaterial) $userMaterial = new UserMaterials();
 
+        $userMaterial->fill($request->all());
 
+        return response()->json($user->materials()->with('type')->select()->get());
     }
 
     public function deleteMaterial($id, Request $request) {

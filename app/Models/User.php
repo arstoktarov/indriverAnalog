@@ -13,6 +13,9 @@ class User extends Authenticatable
 {
     use Notifiable;
 
+    const MATERIAL_IMAGES_PATH = 'user/materials';
+    const TECHNICS_IMAGES_PATH = 'user/technics';
+
     /**
      * The attributes that are mass assignable.
      *

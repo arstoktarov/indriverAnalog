@@ -17,6 +17,8 @@ class CreateUserMaterialsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('material_id');
             $table->unsignedBigInteger('user_id');
+            $table->string('image', 255)->nullable();
+            $table->longText('description')->nullable();
             $table->timestamps();
             $table->foreign('material_id')->references('id')->on('materials')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

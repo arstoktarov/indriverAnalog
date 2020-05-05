@@ -137,7 +137,7 @@ wss.on('connection',  function connection(ws) {
     });
 
     socket.addEventListener("acceptOrder", async function(data, eventName) {
-
+        
     });
 
     // socket.interval('sendOrders', function() {
