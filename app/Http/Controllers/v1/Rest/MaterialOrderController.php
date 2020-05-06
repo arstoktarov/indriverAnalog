@@ -50,4 +50,5 @@ class MaterialOrderController extends Controller
 
         return response()->json($materialOrder);
     }
+
 }

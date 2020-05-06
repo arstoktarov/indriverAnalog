@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Material;
 use App\Models\MaterialType;
 use App\Models\User;
-use App\UserMaterials;
+use App\Models\UserMaterials;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -74,9 +74,13 @@ class MaterialController extends Controller
 
         if (!$userMaterial) $userMaterial = new UserMaterials();
 
+        $userMaterial->user_id = $user->id;
         $userMaterial->fill($request->all());
+        $userMaterial->save();
 
-        return response()->json($user->materials()->with('type')->select()->get());
+        $materialReloaded = $user->materials()->where('material_id', $material->id)->with('type')->select()->first();
+
+        return response()->json($materialReloaded);
     }
 
     public function deleteMaterial($id, Request $request) {

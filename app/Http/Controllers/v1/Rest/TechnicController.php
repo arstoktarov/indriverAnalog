@@ -27,22 +27,31 @@ class TechnicController extends Controller
     }
 
     public function addTechnic(Request $request) {
-        $user = $request['user'];
         $rules = [
             'technic_id' => 'required|exists:technics,id',
-            'image' => '',
+            'image' => 'image',
             'description' => 'string|max:255',
         ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails())
             return $this->Result(400, null, $validator->errors());
 
-        $user->technics()->syncWithoutDetaching([
-            $request['technic_id'] => [
-                'image' => $request['image'],
-                'description' => $request['description'],
-            ]
-        ]);
+        $user = $request['user'];
+        $technic = Technic::find($request['technic_id']);
+
+        $userTechnic = UserTechnic::where('user_id', $user->id)
+            ->where('technic_id', $technic->id)->first();
+
+        if (!$userTechnic) $userTechnic = new UserTechnic();
+
+        $userTechnic->user_id = $user->id;
+        $userTechnic->fill($request->all());
+        $userTechnic->save();
+
+        $tecnicReloaded = $user->technics()->where('technic_id', $technic->id)
+            ->with('type')
+            ->select()
+            ->first();
 
         //$userTechnic = UserTechnic::firstOrCreate([
         //    'technic_id' => $request['technic_id'],
@@ -51,7 +60,7 @@ class TechnicController extends Controller
         //$userTechnic->image = $request['image'];
         //$userTechnic->description = $request['description'];
 
-        return response()->json();
+        return response()->json($tecnicReloaded);
     }
 
     public function deleteTechnic($id, Request $request) {
