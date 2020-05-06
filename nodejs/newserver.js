@@ -38,7 +38,7 @@ wss.on('connection',  function connection(ws) {
                 socket.isOnline = false;
                 socket.ws.ping();
             }
-        }, 1000);
+        }, 10000);
     });
 
     socket.on('message', function (json) {
@@ -81,7 +81,9 @@ wss.on('connection',  function connection(ws) {
             return;
         }
 
+        let user = await models.User.query().where('token', data['token']).first();
 
+        socket.send(functions.response(eventName, user));
     });
 
     socket.addEventListener("getMyData", function(data, eventName) {
@@ -137,23 +139,14 @@ wss.on('connection',  function connection(ws) {
     });
 
     socket.addEventListener("acceptOrder", async function(data, eventName) {
-        
-    });
 
-    // socket.interval('sendOrders', function() {
-    //     let response = functions.response('orders', activeOrders);
-    //     socket.send(response);
-    // }, 5000);
+    });
 });
 
 
 setInterval(function() {
-    //consoleMsg.log("realUsers: " + JSON.stringify(functions.pluckAssoc(functions.pluckAssoc(realUsers, 'user'), 'id')));
     consoleMsg.log("sockets: " + JSON.stringify(functions.pluck(sockets, 'uuid')));
     consoleMsg.log("orders: " + Array.from(orders.keys()));
-    //consoleMsg.log("rooms: " + Array.from(rooms.getWsRooms().keys()));
-    //consoleMsg.info(`Total memory: ${os.totalmem()}`);
-    //consoleMsg.info(`Free memory: ${os.freemem()}`);
 }, 10000);
 
 wss.on('close', function() {
