@@ -14,6 +14,7 @@ const TYPE_COURIER = "courier";
 
 
 class WSUser {
+    id = null;
     isOnline = false;
     user = null;
     myOrders = new Set();
