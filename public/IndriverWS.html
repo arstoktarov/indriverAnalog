@@ -56,7 +56,7 @@
     let reconnectInterval = null;
     let messages = document.getElementById('messages');
     function connect() {
-        const ws = new WebSocket('ws://localhost:8080');
+        const ws = new WebSocket('ws://194.4.58.237:8080');
         ws.events = new Map();
 
 
@@ -74,50 +74,6 @@
             else {
                 alert("Choose user type");
             }
-        };
-
-        /*document.getElementById('sendDataButton').onclick = function() {
-            let lat = document.getElementById('lat').value;
-            let long = document.getElementById('long').value;
-            let to_id = document.getElementById('to_id').value;
-            let locationData = {
-                event: "locationData",
-                location: {
-                    lat: lat,
-                    long: long,
-                    to: to_id,
-                },
-            };
-
-            sendData(toJson(locationData));
-        };*/
-        let locationSender = null;
-        document.getElementById('sendLocationButton').onclick = function() {
-            //let lat = 0;
-            //let long = 0;
-            this.disabled = true;
-            document.getElementById('stopSendLocationButton').disabled = false;
-            locationSender = setInterval(function() {
-                //lat++;
-                //long++;
-                let lat = document.getElementById('lat').value;
-                let long = document.getElementById('long').value;
-                let orderId = document.getElementById('orderIdInput').value;
-                let locationData = {
-                    lat: lat,
-                    long: long,
-                };
-                sendData("location", locationData, ws);
-                console.log(JSON.stringify(locationData));
-            }, 2000);
-        };
-
-        document.getElementById('stopSendLocationButton').onclick = function() {
-            //let lat = 0;
-            //let long = 0;
-            document.getElementById('sendLocationButton').disabled = false;
-            this.disabled = true;
-            clearInterval(locationSender);
         };
 
         document.getElementById('subscribeOrderButton').onclick = function() {
