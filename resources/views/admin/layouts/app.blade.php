@@ -113,11 +113,23 @@
                         <span>Главная</span>
                     </a>
                 </li> {{--MAIN--}}
-                <li class="{{request()->is('admin/users*') ? 'active' : ''}}">
-                    <a href="{{route('users.index')}}">
+                <li class="{{request()->is('admin/users*') || request()->is('admin/clients*') ? 'active' : ''}}">
+                    <a href="javascript:void(0);" class="menu-toggle">
                         <i class="material-icons">people</i>
                         <span>Пользователи</span>
                     </a>
+                    <ul class="ml-menu">
+                        <li class="{{request()->is('admin/clients*') ? 'active' : ''}}">
+                            <a href="{{route('clients.index')}}">
+                                <span>Клиент</span>
+                            </a>
+                        </li>
+                        <li class="{{request()->is('admin/users*') ? 'active' : ''}}">
+                            <a href="{{route('users.index')}}">
+                                <span>Водитель</span>
+                            </a>
+                        </li>
+                    </ul>
                 </li> {{--USERS--}}
                 <li class="{{request()->is('admin/cities*') ? 'active' : ''}}">
                     <a href="{{route('cities.index')}}">

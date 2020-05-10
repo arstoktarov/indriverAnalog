@@ -40,6 +40,7 @@ Route::group(['prefix' => '/admin', 'namespace' => 'Admin', 'middleware' => 'acc
     Route::resource('settings', 'SettingController');
     Route::resource('characterTypes', 'CharacteristicTypeController');
     Route::resource('technicTypes', 'TechnicTypeController');
+    Route::resource('clients', 'ClientController');
 
 });
 

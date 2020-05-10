@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 
-class UserController extends Controller
+class ClientController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,9 +15,9 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::where('type', 2)->with('technics', 'materials')->orderBy('id', 'desc')->paginate(10);
+        $users = User::where('type', 1)->with('technics', 'materials')->orderBy('id', 'desc')->paginate(10);
 
-        return view('admin.user.index', ['users' => $users]);
+        return view('admin.client.index', ['users' => $users]);
     }
 
     /**
@@ -58,12 +58,9 @@ class UserController extends Controller
      * @param  \App\Models\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function edit(User $user)
+    public function edit(User $client)
     {
-//        $user->load([
-//            'technics'
-//        ]);
-        return view('admin.user.show', ['user' => $user]);
+        return view('admin.client.show', ['user' => $client]);
     }
 
     /**
@@ -73,10 +70,10 @@ class UserController extends Controller
      * @param  \App\Models\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, User $user)
+    public function update(Request $request, User $client)
     {
-        $user->balance = $request['balance'];
-        $user->save();
+        $client->balance = $request['balance'];
+        $client->save();
         return redirect($request['redirects_to'] ?? route('cities.index'));
     }
 
@@ -86,9 +83,9 @@ class UserController extends Controller
      * @param  \App\Models\User  $user
      * @return \Illuminate\Http\Response
      */
-    public function destroy(User $user)
+    public function destroy(User $client)
     {
-        $user->delete();
+        $client->delete();
         return back()->withMessage('Успешно удалено!');
     }
 }
