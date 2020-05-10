@@ -17,6 +17,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('ws', function() {
+    return view('wsclient');
+});
+
 
 
 

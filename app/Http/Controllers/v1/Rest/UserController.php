@@ -192,5 +192,4 @@ class UserController extends Controller
         $user->load('city');
         return response()->json($user);
     }
-
 }

@@ -170,7 +170,7 @@ wss.on('connection',  function connection(ws) {
         }
 
         let order = Array.from(orders.values()).find((order) => {
-            return order.data.uuid == data['order_uuid']
+            return order.data.uuid === data['order_uuid']
         });
         if (!order) return;
         order.responses.add(socket.user);
