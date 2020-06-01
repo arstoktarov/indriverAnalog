@@ -17,7 +17,8 @@ class WSUser {
     id = null;
     isOnline = false;
     user = null;
-    myOrders = new Set();
+    order = null;
+    responses = new Set();
 
     //Тип: user или courier
     //type = "anonymous";
@@ -121,6 +122,7 @@ class WSUser {
     destroy() {
         this.destroyIntervals();
         this.destroyTimeouts();
+        this.destroyOrder();
         delete this.ws;
         delete this.user;
         delete this.events;
@@ -145,12 +147,17 @@ class WSUser {
         consoleMsg.info('Timeouts destroyed');
     }
 
+    destroyOrder() {
+        if (this.order)
+            this.order.destroy();
+    }
+
     //Аналогия функции .toString(). Предназначена для получения данных объкта wsUser
     getData() {
         return {
             user: this.user,
             uuid: this.uuid,
-            myOrders: this.myOrders,
+            order: this.order ? this.order.getData() : null,
             events: Object.keys(this.events),
             isOnline: this.isOnline,
             type: this.type,
@@ -163,6 +170,40 @@ class WSUser {
             intervals: Array.from(this.intervals.keys()),
         }
     }
+
+    getExecutor() {
+        // return {
+        //     isOnline: this.isOnline,
+        //     socket_id: this.uuid,
+        //     user: this.user ? {
+        //         id: this.user.id,
+        //         type: this.user.type,
+        //         name: this.user.name,
+        //         phone: this.user.phone,
+        //         city_id: this.user.city_id,
+        //     } : null,
+        // };
+        if (!this.user) return null;
+        return  {
+                    id: this.user.id,
+                    type: this.user.type,
+                    name: this.user.name,
+                    phone: this.user.phone,
+                    city_id: this.user.city_id,
+                };
+    }
+
+    getUser() {
+        if (!this.user) return null;
+        return  {
+            id: this.user.id,
+            type: this.user.type,
+            name: this.user.name,
+            phone: this.user.phone,
+            city_id: this.user.city_id,
+        };
+    }
+
 }
 
 module.exports.User = WSUser;

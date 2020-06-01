@@ -11,9 +11,12 @@ use App\Models\VerificationCodes;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+include_once "smsc_api.php";
 
 class UserController extends Controller
 {
+    const REGISTER_MSG = 'Код доступа: %d, Спец. Техника';
+    const contacts = '   С уважением, \'Спец техника\'';
 
     #region Registration
 
@@ -37,13 +40,18 @@ class UserController extends Controller
         $code = 1234;
         if ($user->updated_at > Carbon::now()->subSeconds(VerificationCodes::$codeTTL)) {
             $timeRemaining = VerificationCodes::$codeTTL - Carbon::now()->diffInSeconds($user->updated_at);
-            return $this->Result(400, null, 'РќРµРІРѕР·РјРѕР¶РЅРѕ РѕС‚РїСЂР°РІРёС‚СЊ РєРѕРґ, РїРѕРґРѕР¶РґРёС‚Рµ ' . $timeRemaining . ' СЃРµРєСѓРЅРґ');
+            return $this->Result(400, null, 'Невозможно отправить код, подождите ' . $timeRemaining . ' секунд');
+        }
+
+        $msg = 'KazIndriver: '.$code;
+        $smsResult = send_sms($request['phone'], $msg, 1);
+        if ($smsResult[1] <= 0) {
+            return $this->Result(500, null, 'Can\'t send message, sorry. Please try again later!');
         }
 
         $user->phone_verification_code = $code;
         $user->touch();
         $user->save();
-
 
         return response()->json($user->only('phone'), 200);
     }
@@ -66,7 +74,7 @@ class UserController extends Controller
         $code = 1234;
         if ($user->updated_at > Carbon::now()->subSeconds(VerificationCodes::$codeTTL)) {
             $timeRemaining = VerificationCodes::$codeTTL - Carbon::now()->diffInSeconds($user->updated_at);
-            return $this->Result(400, null, 'РќРµРІРѕР·РјРѕР¶РЅРѕ РѕС‚РїСЂР°РІРёС‚СЊ РєРѕРґ, РїРѕРґРѕР¶РґРёС‚Рµ ' . $timeRemaining . ' СЃРµРєСѓРЅРґ');
+            return $this->Result(400, null, 'Невозможно отправить код, подождите ' . $timeRemaining . ' секунд');
         }
         //TODO MESSAGE SENDING PROCESS
         $user->code = $code;
@@ -192,4 +200,5 @@ class UserController extends Controller
         $user->load('city');
         return response()->json($user);
     }
+
 }

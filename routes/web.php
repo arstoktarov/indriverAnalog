@@ -21,6 +21,14 @@ Route::get('ws', function() {
     return view('wsclient');
 });
 
+Route::get('executor', function() {
+    return view('wsexecutor');
+});
+
+Route::get('payment/test', function() {
+    return view('paymentTest');
+});
+
 
 
 
@@ -44,6 +52,7 @@ Route::group(['prefix' => '/admin', 'namespace' => 'Admin', 'middleware' => 'acc
     Route::resource('settings', 'SettingController');
     Route::resource('characterTypes', 'CharacteristicTypeController');
     Route::resource('technicTypes', 'TechnicTypeController');
+    Route::resource('clients', 'ClientController');
 
 });
 

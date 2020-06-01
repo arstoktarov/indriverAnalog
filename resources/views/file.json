@@ -1,0 +1,42 @@
+{
+  "event": "chooseExecutor",
+  "data": {
+    "socket_id": "a2045f9b-fa06-4d12-a8cc-c8550ae8752d",
+    "data": {
+      "uuid": "26fcb2b9-64d4-4b4b-8f52-7549032e3aec",
+      "city_id": "1",
+      "technic_id": "1",
+      "address": "Klochkova 130",
+      "lat": "9.123123",
+      "long": "9.123123",
+      "price": "",
+      "description": "Some desc",
+      "technic": {
+        "type_id": 1,
+        "charac_value": 0.5,
+        "type": {
+          "id": 1,
+          "title": "Экскаватр",
+          "description": "Экскаватр",
+          "image": null,
+          "charac_title": "Объем ковша",
+          "charac_unit": "м3"
+        }
+      }
+    },
+    "executor": {
+      "id": 4,
+      "type": 2,
+      "name": "Arsen Toktarov",
+      "phone": "87476527708",
+      "city_id": 1
+    },
+    "user": {
+      "id": 3,
+      "type": 1,
+      "name": "Leonardo Dicaprio",
+      "phone": "87781149507",
+      "city_id": 1
+    }
+  }
+}

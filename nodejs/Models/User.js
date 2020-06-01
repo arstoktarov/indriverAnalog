@@ -1,5 +1,6 @@
 const { Model } = require('../Modules/db');
 const Technic = require('./Technic');
+const Technic_Type = require('./Technic_Type');
 
 class User extends Model {
     static get tableName() {
@@ -22,8 +23,17 @@ class User extends Model {
         }
     };
 
-    static async getUserByToken(token, relations) {
-        return await User.query().withGraphFetched(relations).where('token', token).first();
+    static async getUserByToken(token) {
+        return await User.query()
+            .withGraphFetched('[technics.type]')
+            .modifyGraph('technics', builder => {
+                builder.select('technics.id', 'technic_id', 'image', 'description', 'type_id', 'charac_value')
+            })
+            .modifyGraph('technics.type', builder => {
+                builder.select(Technic_Type.select_columns)
+            })
+            .where('token', token)
+            .first();
     }
 }
 
