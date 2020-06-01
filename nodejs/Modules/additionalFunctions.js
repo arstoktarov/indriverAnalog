@@ -21,7 +21,17 @@ function errorResponse(data) {
     }, null, 4);
 }
 
+function setFind(set, callback) {
+    for (const elem of set) {
+        if (callback(elem)) {
+            return elem;
+        }
+    }
+    return undefined;
+}
+
 module.exports.pluckAssoc = pluckAssoc;
 module.exports.pluck = pluck;
 module.exports.response = response;
 module.exports.errorResponse = errorResponse;
+module.exports.setFind = setFind;

@@ -2,16 +2,14 @@ const db = require('./Modules/db');
 const validate = require('validate.js');
 const consoleMsg = require('./Modules/consoleMsg');
 const wsUserModule = require('./Modules/WSUser');
+const Order = require('./Modules/WSOrder');
 const functions = require('./Modules/additionalFunctions');
 const { app, server } = require('./Loaders/Express');
 const { Websocket, wss, rooms } = require('./Loaders/Websocket');
 const redis = require('./Loaders/Redis');
 const uuid = require('uuid-random/index');
-const os = require('os');
 
 let sockets = new Set();
-let realUsers = new Map();
-let activeOrders = new Map();
 let orders = new Map();
 
 
@@ -66,9 +64,11 @@ wss.on('connection',  function connection(ws) {
             rooms.removeElem(room, socket);
         });
         clearTimeout(pinger);
-        socket.destroy();
+        orders.delete(socket.uuid);
         sockets.delete(socket);
+        socket.destroy();
         socket = null;
+
     });
 
     //pong from user
@@ -135,7 +135,7 @@ wss.on('connection',  function connection(ws) {
         socket.order = {
             executor: null,
             responses: new Set(),
-            data: {
+            order: {
                 uuid: uuid(),
                 city_id: data['city_id'],
                 technic_id: data['technic_id'],
@@ -146,9 +146,13 @@ wss.on('connection',  function connection(ws) {
                 description: data['description'],
                 created_at: Date.now(),
                 updated_at: Date.now(),
-                user: socket.id,
+                socket: {
+                    socket_id: socket.uuid,
+                    user: socket.user
+                },
             }
         };
+
 
         orders.set(socket.uuid, socket.order);
 
@@ -170,12 +174,12 @@ wss.on('connection',  function connection(ws) {
         }
 
         let order = Array.from(orders.values()).find((order) => {
-            return order.data.uuid === data['order_uuid']
+            return order.order.uuid === data['order_uuid']
         });
-        if (!order) return;
-        order.responses.add(socket.user);
 
-        let orderOwner = sockets[order.user];
+        consoleMsg.log(JSON.stringify(order, null, 4));
+
+        let orderOwner = sockets[order.socket.socket_id];
         if (orderOwner) {
             orderOwner.send(functions.response('newResponse', socket.user));
         }
@@ -194,16 +198,16 @@ wss.on('connection',  function connection(ws) {
 
     socket.addEventListener("declineOrder", async function(data, eventName) {});
 
-    socket.interval("sendOrders", function() {
-        if (socket.user && socket.user.technics) {
+    socket.interval("orders", function() {
+        if (socket.user && socket.user.technics && socket.user.type === 2) {
             let personalOrders = Array.from(orders.values())
                 .filter(function (order) {
                     return socket.user.technics.find(function (technic) {
-                        return technic.id == order.data.technic_id
+                        return technic.id === order.order.technic_id
                     });
                 })
                 .map(order => order.data);
-            socket.send(functions.response('sendOrders', personalOrders));
+            socket.send(functions.response('orders', personalOrders));
         }
     }, 10000);
 

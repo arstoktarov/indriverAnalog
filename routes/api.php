@@ -45,6 +45,9 @@ Route::group(['namespace' => 'v1\Rest', 'prefix' => 'v1'], function() {
             Route::post('materials/add', 'MaterialController@addMaterial');
             Route::get('materials', 'MaterialController@userMaterials');
             Route::delete('materials/{id}', 'MaterialController@deleteMaterial');
+
+
+            Route::post('balance/add', 'PaymentController@addToBalance')->name('payBalance');
         });
     });
 
@@ -52,5 +55,9 @@ Route::group(['namespace' => 'v1\Rest', 'prefix' => 'v1'], function() {
     Route::get('materials/types', 'MaterialController@types');
     Route::get('technics', 'TechnicController@index');
     Route::get('technics/types', 'TechnicController@types');
+    Route::get('settings', 'SettingController@index');
 
+    Route::get('payment/result', 'PaymentController@paymentResult')->name('paymentResult');
+    Route::get('payment/success', 'PaymentController@paymentSuccess')->name('paymentSuccess');
+    Route::get('payment/fail', 'PaymentController@paymentFail')->name('paymentFail');
 });

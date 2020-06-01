@@ -21,6 +21,14 @@ Route::get('ws', function() {
     return view('wsclient');
 });
 
+Route::get('executor', function() {
+    return view('wsexecutor');
+});
+
+Route::get('payment/test', function() {
+    return view('paymentTest');
+});
+
 
 
 
