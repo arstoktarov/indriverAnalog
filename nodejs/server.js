@@ -351,6 +351,7 @@ wss.on('connection',  function connection(ws) {
 
         socket.order.destroy();
         orders.delete(socket.order);
+        socket.order.destroy();
         socket.order = null;
     });
 
