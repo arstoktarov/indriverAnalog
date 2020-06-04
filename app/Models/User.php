@@ -15,6 +15,8 @@ class User extends Authenticatable
 
     const MATERIAL_IMAGES_PATH = 'user/materials';
     const TECHNIC_IMAGES_PATH = 'user/technics';
+    const TYPE_USER = 1;
+    const TYPE_EXECUTOR = 2;
 
     /**
      * The attributes that are mass assignable.

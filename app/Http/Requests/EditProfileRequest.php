@@ -32,6 +32,7 @@ class EditProfileRequest extends FormRequest
             'push' => 'boolean',
             'sound' => 'boolean',
             'lang' => 'in:en,ru',
+            'type' => 'in:1,2'
         ];
     }
 

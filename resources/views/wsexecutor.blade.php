@@ -92,6 +92,24 @@
             </div>
         </div>
 
+        <div class="row mb-2">
+            <div class="card w-100">
+                <div class="card-body">
+                    <h5 class="card-title">OrderDone</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="accept_order_span">Order UUID</span>
+                        </div>
+                        <input type="text" class="form-control" value="" id="done_order_uuid" aria-describedby="accept_order_span">
+                    </div>
+                    <div class="text-right">
+                        <button id="order_done_button" type="button" class="btn btn-success">DONE ORDER</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
     <div class="col-6">
         <div class="card">
@@ -173,6 +191,10 @@
             document.getElementById('accept_order_uuid').value = data.data.uuid;
         });
 
+        ws.events.set('orderStarted', function(data) {
+            document.getElementById('done_order_uuid').value = data.data.uuid;
+        });
+
         document.getElementById('connection_button').onclick = function() {
             let token = document.getElementById('token_input').value;
             let data = {
@@ -205,6 +227,11 @@
 
         document.getElementById('get_user_button').onclick = function() {
             sendMessage('getMyData', {}, ws);
+        };
+
+        document.getElementById('order_done_button').onclick = function() {
+            let order_uuid = document.getElementById('done_order_uuid').value;
+            sendMessage('orderDone', {order_uuid: order_uuid}, ws);
         };
 
         document.getElementById('clear_console_button').onclick = function() {

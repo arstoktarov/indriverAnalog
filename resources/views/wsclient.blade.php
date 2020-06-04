@@ -116,7 +116,8 @@ $technics = \App\Models\Technic::all();
                                 <input type="text" class="form-control" value="" id="executor_uuid" aria-describedby="basic-addon3">
                             </div>
                             <div class="text-right">
-                                <button id="choose_executor_button" type="button" class="btn btn-primary">Choose executor</button>
+                                <button id="decline_executor_button" type="button" class="btn btn-danger">Decline</button>
+                                <button id="choose_executor_button" type="button" class="btn btn-success">Choose</button>
                             </div>
                         </div>
                     </div>
@@ -280,6 +281,14 @@ $technics = \App\Models\Technic::all();
                 executor_uuid: executor_uuid
             };
             sendMessage('chooseExecutor', data, ws);
+        };
+
+        document.getElementById('decline_executor_button').onclick = function() {
+            let executor_uuid = document.getElementById('executor_uuid').value;
+            let data = {
+                executor_uuid: executor_uuid
+            };
+            sendMessage('declineExecutor', data, ws);
         };
     }
     connect();

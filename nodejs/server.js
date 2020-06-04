@@ -82,7 +82,9 @@ wss.on('connection',  function connection(ws) {
         });
         clearTimeout(pinger);
         removeExecResponses(socket);
-        //orders.delete(socket.order);
+        if (socket.order && socket.order.data.status === models.Order.NOT_STARTED) {
+            orders.delete(socket.order);
+        }
         sockets.delete(socket);
         socket.destroy();
         socket = null;
@@ -215,21 +217,23 @@ wss.on('connection',  function connection(ws) {
             return;
         }
         if (await socket.hasProcessingOrder()) {
+            socket.send(functions.errorResponse({message: "you already have order"}));
             return;
         }
 
 
         if (!response) {
-
-            let executor_response = new Response(socket, data['price'], order.data.uuid);
-            order.addResponse(executor_response);
-            socket.responses.add(executor_response);
-
+            consoleMsg.log("there is no response");
+            response = new Response(socket, data['price'], order.data.uuid);
+            order.addResponse(response);
+            socket.responses.add(response);
         }
+        response.price = data['price'];
 
         let orderOwner = order.user_socket;
         consoleMsg.log(order.user_socket.uuid);
         if (orderOwner) {
+            consoleMsg.log(`Sending message to user ${orderOwner.user.name}`);
             orderOwner.send(functions.response('newResponse', order.getResponses()));
         }
     });
@@ -271,6 +275,37 @@ wss.on('connection',  function connection(ws) {
 
         executor_response.socket.send(functions.response('userResponded', socket.order.getData()));
 
+    });
+
+    socket.addEventListener("declineExecutor", async function(data, eventName) {
+        let constraints = {
+            'executor_uuid': {presence:true},
+        };
+        let errors = validate(data, constraints);
+        if (errors !== undefined) {
+            socket.send(functions.errorResponse(errors));
+            return;
+        }
+
+        if (!socket.hasUser()) {
+            socket.send(functions.errorResponse({message: 'you have no permissions'}));
+            return;
+        }
+        if (!socket.hasOrder()) {
+            socket.send(functions.errorResponse({message: 'you have no permissions'}));
+            return;
+        }
+
+        let executor_response = functions.setFind(socket.order.responses, function(elem) {
+            return data['executor_uuid'].toString() === elem.socket.uuid.toString();
+        });
+
+        if (socket.order) {
+            socket.order.deleteResponse(executor_response);
+        }
+        socket.send(functions.response("responses", socket.order.getResponses()));
+
+        executor_response.socket.send(functions.response("userDeclined", socket.order.getData()));
     });
 
     socket.addEventListener("acceptOrder", async function(data, eventName) {
@@ -351,7 +386,7 @@ wss.on('connection',  function connection(ws) {
 
         socket.order.destroy();
         orders.delete(socket.order);
-        socket.order.destroy();
+        
         socket.order = null;
     });
 
@@ -373,11 +408,15 @@ wss.on('connection',  function connection(ws) {
 
         let db_order = await models.Order.query().patch({status: models.Order.DONE}).where('uuid', order.data.uuid);
 
+        socket.order.user_socket.send(functions.response(eventName, data));
+        socket.order.executor_socket.send(functions.response(eventName, data));
+        order.executor_socket.interval("orders", ordersInterval, 10000);
         socket.order = null;
         order.executor_socket.order = null;
         order.destroy();
-        myOrder = null;
         orders.delete(order);
+
+
     });
 
     socket.addEventListener("declineOrder", async function(data, eventName) {});
@@ -405,12 +444,11 @@ function removeExecResponses(socket) {
 }
 
 setInterval(function() {
-    consoleMsg.log("sockets: " + JSON.stringify(functions.pluck(sockets, 'uuid')));
-    consoleMsg.log("rooms: " + Array.from(rooms.getWsRooms().keys()));
-    consoleMsg.log("orders: " + JSON.stringify(Array.from(orders).map(order => order.data.uuid)));
+    consoleMsg.info("sockets: " + JSON.stringify(functions.pluck(sockets, 'uuid')));
+    consoleMsg.info("rooms: " + Array.from(rooms.getWsRooms().keys()));
+    consoleMsg.info("orders: " + JSON.stringify(Array.from(orders).map(order => order.data.uuid)));
 }, 10000);
 
 wss.on('close', function() {
     consoleMsg.log("Server disconnected: " + wss.clients.size);
 });
-
