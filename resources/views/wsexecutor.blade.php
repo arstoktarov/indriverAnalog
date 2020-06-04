@@ -45,9 +45,9 @@
                     <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
-                            <span class="input-group-text" id="order_price_span">Order UUID</span>
+                            <span class="input-group-text" id="order_uuid_span">Order UUID</span>
                         </div>
-                        <input type="text" class="form-control" value="" id="order_uuid" aria-describedby="order_price_span">
+                        <input type="text" class="form-control" value="" id="order_uuid" aria-describedby="order_uuid_span">
                     </div>
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
@@ -57,6 +57,23 @@
                     </div>
                     <div class="text-right">
                         <button id="respond_order_button" type="button" class="btn btn-primary">Respond order</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-2">
+            <div class="card w-100">
+                <div class="card-body">
+                    <h5 class="card-title">Accept order</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="accept_order_span">Order UUID</span>
+                        </div>
+                        <input type="text" class="form-control" value="" id="accept_order_uuid" aria-describedby="accept_order_span">
+                    </div>
+                    <div class="text-right">
+                        <button id="accept_order_button" type="button" class="btn btn-primary">Accept order</button>
                     </div>
                 </div>
             </div>
@@ -152,6 +169,10 @@
             console.log('hello');
         });
 
+        ws.events.set('userResponded', function(data) {
+            document.getElementById('accept_order_uuid').value = data.data.uuid;
+        });
+
         document.getElementById('connection_button').onclick = function() {
             let token = document.getElementById('token_input').value;
             let data = {
@@ -170,6 +191,16 @@
             };
 
             sendMessage('respondOrder', data, ws);
+        };
+
+        document.getElementById('accept_order_button').onclick = function() {
+            let order_uuid = document.getElementById('accept_order_uuid').value;
+
+            let data = {
+                order_uuid: order_uuid,
+            };
+
+            sendMessage('acceptOrder', data, ws);
         };
 
         document.getElementById('get_user_button').onclick = function() {

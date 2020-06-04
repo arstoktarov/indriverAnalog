@@ -21,10 +21,10 @@ class Technic extends Model {
 
     static async getTechnicById(id) {
         return await Technic.query()
-            // .withGraphFetched('type')
-            // .modifyGraph('type', builder => {
-            //     builder.select(Technic_Type.select_columns);
-            // })
+            .withGraphFetched('type')
+            .modifyGraph('type', builder => {
+                builder.select(Technic_Type.select_columns);
+            })
             .select(this.columns)
             .findById(id);
     }

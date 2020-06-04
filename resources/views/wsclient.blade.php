@@ -134,6 +134,18 @@ $technics = \App\Models\Technic::all();
                         </div>
                     </div>
                 </div>
+                <div class="row mb-2">
+                    <div class="card w-100">
+                        <div class="card-body">
+                            <h5 class="card-title">My order</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
+                            <div class="text-right">
+                                <button id="get_order_button" type="button" class="btn btn-primary">Refresh</button>
+                            </div>
+                            <pre id="my_order_data"></pre>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="col-6">
                 <div class="card">
@@ -211,6 +223,10 @@ $technics = \App\Models\Technic::all();
             document.getElementById('executor_uuid').value = data[0].socket_id;
         });
 
+        ws.events.set('myOrder', function(data) {
+            document.getElementById('my_order_data').innerText = toJson(data);
+        });
+
         document.getElementById('connection_button').onclick = function() {
             let token = document.getElementById('token_input').value;
             let data = {
@@ -248,6 +264,10 @@ $technics = \App\Models\Technic::all();
 
         document.getElementById('get_user_button').onclick = function() {
             sendMessage('getMyData', {}, ws);
+        };
+
+        document.getElementById('get_order_button').onclick = function() {
+            sendMessage('myOrder', {}, ws);
         };
 
         document.getElementById('clear_console_button').onclick = function() {
