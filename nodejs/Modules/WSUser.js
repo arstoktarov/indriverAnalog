@@ -8,9 +8,12 @@ const uuid = require('uuid-random/index');
 //дополнительные функции в другом файле
 const functions = require('./additionalFunctions');
 
+const { Order, Response } = require('../Modules/WSOrder');
 //Константы типа пользователя
-const TYPE_USER = "user";
-const TYPE_COURIER = "courier";
+const TYPE_USER = 1;
+const TYPE_COURIER = 2;
+
+const models = require('../Models/Models');
 
 
 class WSUser {
@@ -193,6 +196,10 @@ class WSUser {
                 };
     }
 
+    isExecutor() {
+        return !!(this.hasUser() && this.user.type === TYPE_COURIER);
+    }
+
     getUser() {
         if (!this.user) return null;
         return  {
@@ -202,6 +209,64 @@ class WSUser {
             phone: this.user.phone,
             city_id: this.user.city_id,
         };
+    }
+
+    hasUser() {
+        return !!(this.user && this.user.id);
+    }
+
+    setOrder(order) {
+        if (order && this.hasUser()) {
+            this.order = order;
+            if (this.user.type === TYPE_COURIER) {
+                order.executor_socket = this;
+            }
+            else {
+                order.user_socket = this;
+            }
+        }
+    }
+
+    hasOrder() {
+        return !!(this.order && this.order.uuid);
+    }
+
+    async loadOrder() {
+        let query = models.Order.query()
+            .withGraphFetched('technic')
+            .modifyGraph('technic', builder => {
+                builder.select(models.Technic.columns)
+                .withGraphFetched('type')
+                .modifyGraph('type', builder => {
+                    builder.select(models.Technic_Type.select_columns);
+                });
+            })
+            .where('status', models.Order.IN_PROCESS);
+        if (this.isExecutor()) {
+            let orderData = await query.where('executor_id', this.user.id).first();
+            if (orderData) {
+                this.order = new Order(orderData, this);
+            }
+            return this.order;
+        }
+        else if (this.hasUser()) {
+            let orderData = await query.where('user_id', this.user.id).first();
+            if (orderData) {
+                this.order = new Order(orderData, this);
+            }
+            return this.order;
+        }
+        return null;
+    }
+
+    async hasProcessingOrder() {
+        if (this.isExecutor()) {
+            let exec_order = await models.Order.query()
+                .where('executor_id', this.user.id)
+                .where('status', models.Order.IN_PROCESS)
+                .first();
+            return !!exec_order;
+        }
     }
 
 }

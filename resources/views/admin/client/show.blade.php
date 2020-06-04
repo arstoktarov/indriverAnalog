@@ -20,43 +20,43 @@
                             <div class="table-responsive">
                                 <table class="table">
                                     <tbody>
-                                        <tr>
-                                            <td>Имя пользователя - </td>
-                                            <td>{{$user->name}}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Номер пользователя</td>
-                                            <td>{{$user->phone}}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Баланс пользователя</td>
-                                            <td>{{$user->balance}}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Город пользователя</td>
-                                            <td>{{$user->city['title']}}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Техника пользователя</td>
-                                            <td>
-                                                @foreach($user->technics as $technic)
-                                                    {{$technic['charac_value']}}
-                                                @endforeach
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>Материалы пользователя</td>
-                                            <td>
-                                                @foreach($user->materials as $material)
-                                                    <div class="row">
-                                                        <div>{{$material['charac_title']}} - {{$material['charac_value']}} {{$material['charac_unit']}}</div>
-                                                    </div>
-                                                @endforeach
-                                            </td>
-                                        </tr>
+                                    <tr>
+                                        <td>Имя пользователя - </td>
+                                        <td>{{$user->name}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Номер пользователя</td>
+                                        <td>{{$user->phone}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Баланс пользователя</td>
+                                        <td>{{$user->balance}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Город пользователя</td>
+                                        <td>{{$user->city['title']}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Техника пользователя</td>
+                                        <td>
+                                            @foreach($user->technics as $technic)
+                                                {{$technic['charac_value']}}
+                                            @endforeach
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Материалы пользователя</td>
+                                        <td>
+                                            @foreach($user->materials as $material)
+                                                <div class="row">
+                                                    <div>{{$material['charac_title']}} - {{$material['charac_value']}} {{$material['charac_unit']}}</div>
+                                                </div>
+                                            @endforeach
+                                        </td>
+                                    </tr>
                                     </tbody>
                                 </table>
-                                <form action="{{route('users.update', $user)}}" method="post" enctype="multipart/form-data">
+                                <form action="{{route('clients.update', $user)}}" method="post" enctype="multipart/form-data">
                                     {{csrf_field()}}
                                     @method('PATCH')
                                     <input type="hidden" name="redirects_to" value="{{URL::previous()}}">

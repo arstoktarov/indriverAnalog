@@ -42,8 +42,8 @@
                                             <td>{{$user->balance}}</td>
                                             <td>{{$user->city['title'] ?? 'Не указан'}}</td>
                                             <td>
-                                                <a href="{{route('users.edit', $user->id)}}" class="waves-effect btn btn-success"><i class="material-icons">visibility</i></a>
-                                                <form action="{{route('users.destroy', $user->id)}}" method="POST" style="display:inline-block">
+                                                <a href="{{route('clients.edit', $user->id)}}" class="waves-effect btn btn-success"><i class="material-icons">visibility</i></a>
+                                                <form action="{{route('clients.destroy', $user->id)}}" method="POST" style="display:inline-block">
                                                     @method('delete')
                                                     @csrf
                                                     <button type="submit" class="waves-effect btn btn-danger"><i class="material-icons">delete</i></button>
