@@ -213,4 +213,22 @@ class UserController extends Controller
         $user->save();
     }
 
+    public function changePassword(Request $request) {
+        $rules = [
+            'token' => 'required',
+            'password' => 'required'
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) return $this->Result(400, null, $validator->errors()->first());
+
+        $user = User::where('token', $request['token'])->first();
+        if (!$user) return $this->Result(401, null, 'User not found');
+
+        $user->setPassword($request['password']);
+
+        $user->save();
+
+        return response()->json($user);
+    }
+
 }

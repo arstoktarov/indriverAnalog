@@ -62,10 +62,15 @@ class User extends Authenticatable
         return $this->belongsToMany(Material::class, 'user_materials');
     }
 
+    public function technicOrders() {
+        $foreign = $this->type == User::TYPE_USER ? 'user_id' : 'executor_id';
+        return $this->hasMany(TechnicOrder::class, $foreign);
+    }
+
 
     public function setPassword($value) {
         $this->attributes['password'] = $value;
-        $this->resetToken();
+        //$this->resetToken();
     }
 
     public function resetToken() {

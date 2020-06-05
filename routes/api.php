@@ -30,12 +30,15 @@ Route::group(['namespace' => 'v1\Rest', 'prefix' => 'v1'], function() {
         Route::post('verify', 'UserController@verify');
         Route::post('password/reset', 'UserController@resetPassword');
         Route::post('password/reset/check', 'UserController@checkResetPasswordCode');
+        Route::post('password/change', 'UserController@changePassword');
         Route::post('create', 'UserController@createUser');
 
         Route::group(['middleware' => 'userAuth'], function() {
             Route::post('edit', 'UserController@editProfile');
             Route::get('auth', 'UserController@auth');
 
+            Route::get('technics/orders', 'TechnicOrderController@index');
+            Route::get('technics/orders/{id}', 'TechnicOrderController@show');
             Route::post('technics/add', 'TechnicController@addTechnic');
             Route::get('technics', 'TechnicController@userTechnics');
             Route::delete('technics/{id}', 'TechnicController@deleteTechnic');
@@ -45,6 +48,7 @@ Route::group(['namespace' => 'v1\Rest', 'prefix' => 'v1'], function() {
             Route::post('materials/add', 'MaterialController@addMaterial');
             Route::get('materials', 'MaterialController@userMaterials');
             Route::delete('materials/{id}', 'MaterialController@deleteMaterial');
+
 
 
             Route::post('balance/add', 'PaymentController@addToBalance')->name('payBalance');

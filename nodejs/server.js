@@ -308,6 +308,62 @@ wss.on('connection',  function connection(ws) {
         executor_response.socket.send(functions.response("userDeclined", socket.order.getData()));
     });
 
+    socket.addEventListener("startOrder", async function(data, eventName) {
+        let constraints = {
+            'order_uuid': {presence:true},
+        };
+        let errors = validate(data, constraints);
+        if (errors !== undefined) {
+            socket.send(functions.errorResponse(errors));
+            return;
+        }
+
+        if (!socket.user) {
+            socket.send(functions.errorResponse({message: 'you have no permissions'}));
+            return;
+        }
+
+        let order = functions.setFind(orders, (order) => {
+            return order.data.uuid === data['order_uuid']
+        });
+        if (!order) return;
+
+        order.executor_socket = socket;
+        order.responses.clear();
+
+        socket.order = order;
+        socket.clearInterval("orders");
+        orders.delete(socket.order);
+        let comission = 5;
+        let balance = socket.user.balance;
+        let new_balance = balance - (socket.order.data.price * (comission / 100));
+        consoleMsg.log(`${socket.user.name}'s new balance ${new_balance}`);
+
+        let db_order = await models.Order.query().insert({
+            uuid: order.data.uuid,
+            user_id: order.user_socket.user.id,
+            executor_id: order.executor_socket.user.id,
+            status: models.Order.IN_PROCESS,
+            city_id: order.data.city_id,
+            technic_id: order.data.technic_id,
+            address: order.data.address,
+            lat: order.data.lat,
+            long: order.data.long,
+            price: order.data.price,
+            description: order.data.description
+        });
+
+        await order.reloadData();
+
+        if (socket.user) {
+            let executor = await models.User.query().patch({balance: new_balance}).findById(socket.user.id);
+        }
+
+        order.executor_socket.send(functions.response("orderStarted", order.getData()));
+        order.user_socket.send(functions.response("orderStarted", order.getData()));
+
+    });
+
     socket.addEventListener("acceptOrder", async function(data, eventName) {
         let constraints = {
             'order_uuid': {presence:true},
@@ -337,6 +393,7 @@ wss.on('connection',  function connection(ws) {
 
         socket.order = order;
         socket.clearInterval("orders");
+        orders.delete(socket.order);
         let comission = 5;
         let balance = socket.user.balance;
         let new_balance = balance - (socket.order.data.price * (comission / 100));
@@ -363,7 +420,7 @@ wss.on('connection',  function connection(ws) {
         }
 
         order.executor_socket.send(functions.response("orderStarted", order.getData()));
-        order.user_socket.send(functions.response("orderStarted", order.getData()))
+        order.user_socket.send(functions.response("orderStarted", order.getData()));
 
     });
 
@@ -400,22 +457,23 @@ wss.on('connection',  function connection(ws) {
             return;
         }
 
-        let order = functions.setFind(orders, function(order) {
-            return order.data.uuid === data['order_uuid'];
-        });
+        let order = socket.order;
 
         if (!order) return;
 
         let db_order = await models.Order.query().patch({status: models.Order.DONE}).where('uuid', order.data.uuid);
 
-        socket.order.user_socket.send(functions.response(eventName, data));
-        socket.order.executor_socket.send(functions.response(eventName, data));
-        order.executor_socket.interval("orders", ordersInterval, 10000);
-        socket.order = null;
-        order.executor_socket.order = null;
-        order.destroy();
+        order.user_socket.send(functions.response(eventName, data));
+        order.executor_socket.send(functions.response(eventName, data));
+
         orders.delete(order);
 
+        order.executor_socket.interval("orders", ordersInterval, 10000);
+
+        order.executor_socket.order = null;
+        order.user_socket.order = null;
+        socket.order = null;
+        order.destroy();
 
     });
 
