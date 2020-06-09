@@ -15,6 +15,8 @@ class User extends Authenticatable
 
     const MATERIAL_IMAGES_PATH = 'user/materials';
     const TECHNIC_IMAGES_PATH = 'user/technics';
+    const TYPE_USER = 1;
+    const TYPE_EXECUTOR = 2;
 
     /**
      * The attributes that are mass assignable.
@@ -60,10 +62,15 @@ class User extends Authenticatable
         return $this->belongsToMany(Material::class, 'user_materials');
     }
 
+    public function technicOrders() {
+        $foreign = $this->type == User::TYPE_USER ? 'user_id' : 'executor_id';
+        return $this->hasMany(TechnicOrder::class, $foreign);
+    }
+
 
     public function setPassword($value) {
         $this->attributes['password'] = $value;
-        $this->resetToken();
+        //$this->resetToken();
     }
 
     public function resetToken() {

@@ -15,8 +15,8 @@ include_once "smsc_api.php";
 
 class UserController extends Controller
 {
-    const REGISTER_MSG = 'Êîä äîñòóïà: %d, Ñïåö. Òåõíèêà';
-    const contacts = '   Ñ óâàæåíèåì, \'Ñïåö òåõíèêà\'';
+    const REGISTER_MSG = 'ĞšĞ¾Ğ´ Ğ´Ğ¾ÑÑ‚ÑƒĞ¿Ğ°: %d, Ğ¡Ğ¿ĞµÑ†. Ğ¢ĞµÑ…Ğ½Ğ¸ĞºĞ°';
+    const contacts = '   Ğ¡ ÑƒĞ²Ğ°Ğ¶ĞµĞ½Ğ¸ĞµĞ¼, \'Ğ¡Ğ¿ĞµÑ† Ñ‚ĞµÑ…Ğ½Ğ¸ĞºĞ°\'';
 
     #region Registration
 
@@ -40,7 +40,7 @@ class UserController extends Controller
         $code = 1234;
         if ($user->updated_at > Carbon::now()->subSeconds(VerificationCodes::$codeTTL)) {
             $timeRemaining = VerificationCodes::$codeTTL - Carbon::now()->diffInSeconds($user->updated_at);
-            return $this->Result(400, null, 'Íåâîçìîæíî îòïğàâèòü êîä, ïîäîæäèòå ' . $timeRemaining . ' ñåêóíä');
+            return $this->Result(400, null, 'ĞĞµĞ²Ğ¾Ğ·Ğ¼Ğ¾Ğ¶Ğ½Ğ¾ Ğ¾Ñ‚Ğ¿Ñ€Ğ°Ğ²Ğ¸Ñ‚ÑŒ ĞºĞ¾Ğ´, Ğ¿Ğ¾Ğ´Ğ¾Ğ¶Ğ´Ğ¸Ñ‚Ğµ ' . $timeRemaining . ' ÑĞµĞºÑƒĞ½Ğ´');
         }
 
         $msg = 'KazIndriver: '.$code;
@@ -74,7 +74,7 @@ class UserController extends Controller
         $code = 1234;
         if ($user->updated_at > Carbon::now()->subSeconds(VerificationCodes::$codeTTL)) {
             $timeRemaining = VerificationCodes::$codeTTL - Carbon::now()->diffInSeconds($user->updated_at);
-            return $this->Result(400, null, 'Íåâîçìîæíî îòïğàâèòü êîä, ïîäîæäèòå ' . $timeRemaining . ' ñåêóíä');
+            return $this->Result(400, null, 'ĞĞµĞ²Ğ¾Ğ·Ğ¼Ğ¾Ğ¶Ğ½Ğ¾ Ğ¾Ñ‚Ğ¿Ñ€Ğ°Ğ²Ğ¸Ñ‚ÑŒ ĞºĞ¾Ğ´, Ğ¿Ğ¾Ğ´Ğ¾Ğ¶Ğ´Ğ¸Ñ‚Ğµ ' . $timeRemaining . ' ÑĞµĞºÑƒĞ½Ğ´');
         }
         //TODO MESSAGE SENDING PROCESS
         $user->code = $code;
@@ -198,6 +198,36 @@ class UserController extends Controller
 
         $user->save();
         $user->load('city');
+        return response()->json($user);
+    }
+
+    public function changeType(Request $request) {
+        $rules = [
+            'type' => 'in:1,2'
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) return $this->Result(400, null, $validator->errors()->first());
+
+        $user = $request['user'];
+        $user->type = $request['type'];
+        $user->save();
+    }
+
+    public function changePassword(Request $request) {
+        $rules = [
+            'token' => 'required',
+            'password' => 'required'
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) return $this->Result(400, null, $validator->errors()->first());
+
+        $user = User::where('token', $request['token'])->first();
+        if (!$user) return $this->Result(401, null, 'User not found');
+
+        $user->setPassword($request['password']);
+
+        $user->save();
+
         return response()->json($user);
     }
 
