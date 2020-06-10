@@ -67,6 +67,11 @@ class User extends Authenticatable
         return $this->hasMany(TechnicOrder::class, $foreign);
     }
 
+    public function materialOrders() {
+        $foreign = $this->type == User::TYPE_USER ? 'user_id' : 'executor_id';
+        return $this->hasMany(MaterialOrder::class, $foreign);
+    }
+
 
     public function setPassword($value) {
         $this->attributes['password'] = $value;

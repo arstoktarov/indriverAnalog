@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -21,7 +22,7 @@ class PaymentController extends Controller
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) return $this->Result(400, null, $validator->errors()->first());
 
-        return response()->json(['redirect_url' => self::pay($request['amount'], $request['user_id'])]);
+        return redirect()->to(self::pay($request['amount'], $request['user_id']));
     }
 
     public function addToBalance(Request $request) {
@@ -47,13 +48,15 @@ class PaymentController extends Controller
             'pg_amount' => $amount,
             'pg_salt' => Str::random(10),
             'pg_order_id' => $t->id,
+            'pg_user_id' => $user_id,
             'pg_description' => $t->description,
             'pg_result_url' => route('paymentResult'),
-            'pg_success_url' => route('paymentSuccess'),
-            'pg_failure_url' => route('paymentFail'),
-            'pg_success_url_method' => 'GET',
-            'pg_failure_url_method' => 'GET',
-            'pg_resting_mode' => 1
+            //'pg_success_url' => route('paymentSuccess'),
+            //'pg_failure_url' => route('paymentFail'),
+            'pg_result_url_method' => 'GET',
+            //'pg_success_url_method' => 'GET',
+            //'pg_failure_url_method' => 'GET',
+            //'pg_resting_mode' => 1
         ];
 
         ksort($arrReq);
@@ -78,9 +81,9 @@ class PaymentController extends Controller
 
     function paymentResult(Request $request)
     {
+        Log::info(http_build_query($request->all()));
         if($request['pg_result']) {
-            $t = Transaction::find($request['pg_order_id']);
-            $user = User::find($request['pg_user_id']);
+            $transaction = Transaction::find($request['pg_order_id']);
             $arrReq = [
                 'pg_merchant_id' => env('PAYBOX_ID'),
                 'pg_salt' => $pg_salt = mt_rand(21, 43433)
@@ -90,10 +93,14 @@ class PaymentController extends Controller
             array_push($arrReq, env('PAYBOX_KEY'));
             $pg_sig = md5(implode(';', $arrReq));
 
-            if ($t){
-                $t->status = 'success';
+            if ($transaction){
+                $user = User::find($transaction->user_id);
+                $transaction->fill($request->only(Transaction::FILLABLES));
+                $transaction->status = 'success';
+                $transaction->payment_id = $request['pg_payment_id'];
                 $user->balance += $request['pg_amount'];
-                $t->save();
+                $user->save();
+                $transaction->save();
 
 
 
@@ -126,7 +133,8 @@ XML;
         }
     }
 
-    public function paymentSuccess(){
+    public function paymentSuccess(Request $request){
+        Log::info(http_build_query($request->all()));
         return '<h2>Удачно оплачено</h2>';
     }
 

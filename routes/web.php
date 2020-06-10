@@ -29,6 +29,8 @@ Route::get('payment/test', function() {
     return view('paymentTest');
 });
 
+Route::get('payTest', 'v1\Rest\PaymentController@payTest')->name('payTest');
+
 
 
 

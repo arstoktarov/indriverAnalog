@@ -45,6 +45,10 @@ Route::group(['namespace' => 'v1\Rest', 'prefix' => 'v1'], function() {
 
             Route::post('materials/orders', 'MaterialOrderController@create');
             Route::get('materials/orders', 'MaterialOrderController@index');
+            Route::post('materials/orders/responses', 'MaterialOrderController@createResponse');
+            Route::post('materials/orders/responses/choose', 'MaterialOrderController@chooseExecutor');
+            Route::get('materials/orders/responses/{id}', 'MaterialOrderController@responses');
+
             Route::post('materials/add', 'MaterialController@addMaterial');
             Route::get('materials', 'MaterialController@userMaterials');
             Route::delete('materials/{id}', 'MaterialController@deleteMaterial');
@@ -61,7 +65,8 @@ Route::group(['namespace' => 'v1\Rest', 'prefix' => 'v1'], function() {
     Route::get('technics/types', 'TechnicController@types');
     Route::get('settings', 'SettingController@index');
 
-    Route::get('payment/result', 'PaymentController@paymentResult')->name('paymentResult');
+    //Route::any('payment/result', 'PaymentController@paymentResult')->name('paymentResult');
+    Route::post('payment/result', 'PaymentController@paymentResult')->name('paymentResult');
     Route::get('payment/success', 'PaymentController@paymentSuccess')->name('paymentSuccess');
     Route::get('payment/fail', 'PaymentController@paymentFail')->name('paymentFail');
 });

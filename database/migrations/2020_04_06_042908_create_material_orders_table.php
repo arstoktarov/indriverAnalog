@@ -17,6 +17,7 @@ class CreateMaterialOrdersTable extends Migration
             $table->id();
             $table->uuid('uuid');
             $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('executor_id');
             $table->unsignedBigInteger('city_id');
             $table->unsignedBigInteger('material_id');
             $table->string('address')->nullable();
