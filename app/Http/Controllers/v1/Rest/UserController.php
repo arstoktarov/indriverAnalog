@@ -203,7 +203,7 @@ class UserController extends Controller
 
     public function changeType(Request $request) {
         $rules = [
-            'type' => 'in:1,2'
+            'type' => 'required|in:1,2'
         ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) return $this->Result(400, null, $validator->errors()->first());
@@ -211,6 +211,8 @@ class UserController extends Controller
         $user = $request['user'];
         $user->type = $request['type'];
         $user->save();
+
+        return $user;
     }
 
     public function changePassword(Request $request) {

@@ -42,10 +42,6 @@ class Kernel extends HttpKernel
             'throttle:60,1',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
-
-        'userAuth' => [
-            \App\Http\Middleware\UserAuth::class,
-        ],
     ];
 
     /**
@@ -67,5 +63,6 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'accessAdmin' => \App\Http\Middleware\Admin::class,
+        'userAuth' => \App\Http\Middleware\UserAuth::class,
     ];
 }

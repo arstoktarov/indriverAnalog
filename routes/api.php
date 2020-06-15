@@ -24,6 +24,7 @@ Route::group(['namespace' => 'v1\Rest', 'prefix' => 'v1'], function() {
     Route::get('cities', 'CityController@index');
 
     Route::group(['prefix' => 'user'], function() {
+        
         Route::post('sign-up', 'UserController@signUp');
         Route::post('sign-in', 'UserController@signIn');
         Route::post('resendCode', 'UserController@resendCode');
@@ -34,28 +35,38 @@ Route::group(['namespace' => 'v1\Rest', 'prefix' => 'v1'], function() {
         Route::post('create', 'UserController@createUser');
 
         Route::group(['middleware' => 'userAuth'], function() {
+
             Route::post('edit', 'UserController@editProfile');
+            Route::post('edit/type', 'UserController@changeType');
             Route::get('auth', 'UserController@auth');
+            Route::post('balance/add', 'PaymentController@addToBalance')->name('payBalance');
 
             Route::get('technics/orders', 'TechnicOrderController@index');
+            Route::get('materials/orders', 'MaterialOrderController@index');
             Route::get('technics/orders/{id}', 'TechnicOrderController@show');
+        });
+
+        Route::group(['middleware' => 'userAuth:user'], function() {
+
+            Route::post('materials/orders', 'MaterialOrderController@create');
+            Route::post('materials/orders/responses/choose', 'MaterialOrderController@chooseExecutor');
+            Route::get('materials/orders/responses/{id}', 'MaterialOrderController@responses');
+        });
+
+        Route::group(['middleware' => 'userAuth:executor'], function() {
+
             Route::post('technics/add', 'TechnicController@addTechnic');
             Route::get('technics', 'TechnicController@userTechnics');
             Route::delete('technics/{id}', 'TechnicController@deleteTechnic');
-
-            Route::post('materials/orders', 'MaterialOrderController@create');
-            Route::get('materials/orders', 'MaterialOrderController@index');
-            Route::post('materials/orders/responses', 'MaterialOrderController@createResponse');
-            Route::post('materials/orders/responses/choose', 'MaterialOrderController@chooseExecutor');
-            Route::get('materials/orders/responses/{id}', 'MaterialOrderController@responses');
 
             Route::post('materials/add', 'MaterialController@addMaterial');
             Route::get('materials', 'MaterialController@userMaterials');
             Route::delete('materials/{id}', 'MaterialController@deleteMaterial');
 
+            Route::post('materials/orders/responses', 'MaterialOrderController@createResponse');
 
-
-            Route::post('balance/add', 'PaymentController@addToBalance')->name('payBalance');
+            Route::get('technics/orders/list', 'TechnicOrderController@ordersList');
+            Route::get('materials/orders/list', 'MaterialOrderController@ordersList');
         });
     });
 

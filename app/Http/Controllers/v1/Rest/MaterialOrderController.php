@@ -19,6 +19,18 @@ class MaterialOrderController extends Controller
         return $materialOrders;
     }
 
+    public function ordersList(Request $request) {
+        $user = $request['user'];
+
+        $material_ids = $user->materials->pluck('id');
+
+        $orders = MaterialOrder::whereIn('material_id', $material_ids)
+            ->orderByDesc('created_at')
+            ->paginate(Controller::PAGINATE_COUNT);
+
+        return $orders;
+    }
+
     public function create(Request $request) {
         $rules = [
             'city_id' => 'required|exists:cities,id',
