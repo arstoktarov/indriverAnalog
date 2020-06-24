@@ -222,6 +222,11 @@ $technics = \App\Models\Technic::all();
 
         ws.events.set('newResponse', function(data) {
             document.getElementById('executor_uuid').value = data[0].socket_id;
+            //let confirmed = window.confirm("You have new response!");
+            //let response = {executor_uuid: data[0].socket_id};
+
+            //if (confirmed) sendMessage('chooseExecutor', response, ws);
+            //else sendMessage('declineExecutor', response, ws);
         });
 
         ws.events.set('myOrder', function(data) {

@@ -18,6 +18,18 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
+        'App\Events\Push\MaterialOrders\ExecutorResponded' => [
+            'App\Listeners\Push\MaterialOrders\SendExecutorRespondedPush'
+        ],
+        'App\Events\Push\MaterialOrders\ExecutorAccepted' => [
+            'App\Listeners\Push\MaterialOrders\SendExecutorAcceptedPush'
+        ],
+        'App\Events\Push\MaterialOrders\ExecutorDone' => [
+            'App\Listeners\Push\MaterialOrders\SendExecutorDonePush'
+        ],
+        'App\Events\Push\MaterialOrders\UserAcceptedResponse' => [
+            'App\Listeners\Push\MaterialOrders\SendUserAcceptedResponsePush'
+        ],
     ];
 
     /**

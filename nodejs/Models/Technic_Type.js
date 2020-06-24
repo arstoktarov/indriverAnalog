@@ -3,7 +3,7 @@ const Technic = require('./Technic');
 
 class TechnicType extends Model {
     static select_columns = [
-        'id', 'title', 'description', 'image', 'charac_title', 'charac_unit'
+        'id', 'title', 'description', 'image', 'charac_title', 'charac_unit', 'min_order_price'
     ];
 
     static get tableName() {

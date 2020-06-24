@@ -14,4 +14,16 @@ class MaterialOrderResponse extends Model
         'order_id' => 'integer',
         'price' => 'integer'
     ];
+
+    public function user() {
+        return $this->belongsTo(User::class);
+    }
+
+    public function executor() {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function order() {
+        return $this->belongsTo(MaterialOrder::class);
+    }
 }

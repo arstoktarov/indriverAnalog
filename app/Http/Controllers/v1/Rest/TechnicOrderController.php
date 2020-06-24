@@ -5,11 +5,18 @@ namespace App\Http\Controllers\v1\Rest;
 use App\Http\Controllers\Controller;
 use App\Models\TechnicOrder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class TechnicOrderController extends Controller
 {
     public function index(Request $request) {
-        $orders = $request['user']->technicOrders()->paginate(Controller::PAGINATE_COUNT);
+        $orders = $request['user']->technicOrders()->with([
+            'city',
+            'technic' => function($query) {
+                $query->with('type');
+            }
+        ])
+        ->paginate(Controller::PAGINATE_COUNT);
         return $orders;
     }
 
@@ -20,5 +27,17 @@ class TechnicOrderController extends Controller
         return $order;
     }
 
+    public function doneOrder(Request $request) {
+        $rules = [
+            'order_uuid' => 'required'
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) return $this->Result(400, null, $validator->errors()->first());
 
+        $technicOrder = TechnicOrder::where('uuid', $request['order_uuid'])->first();
+
+        if (!$technicOrder) return $this->Result(404);
+        $technicOrder->status = TechnicOrder::STATUS_DONE;
+        $technicOrder->save();
+    }
 }

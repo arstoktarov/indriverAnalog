@@ -77,7 +77,7 @@ class SettingController extends Controller
      */
     public function update(Request $request, Setting $setting)
     {
-        $setting->keyword = $request['keyword'];
+        $setting->keyword_title = $request['title'];
         $setting->value = $request['value'];
         $setting->save();
         return redirect($request['redirects_to'] ?? route('settings.index'));

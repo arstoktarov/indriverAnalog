@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers\v1\Rest;
 
+use App\FirebasePush;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\EditProfileRequest;
+use App\Http\Resources\AuthorizedUserResource;
 use App\Models\PasswordResets;
 use App\Models\User;
 use App\Models\VerificationCodes;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 include_once "smsc_api.php";
 
@@ -113,6 +116,8 @@ class UserController extends Controller
         $rules = [
             'phone' => 'required',
             'password' => 'required',
+            'device_token' => 'string',
+            'device_type' => 'string|in:android,ios',
         ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) return $this->Result(400, null, $validator->errors()->first());
@@ -121,15 +126,21 @@ class UserController extends Controller
 
         if (!$user) return $this->Result(401, null, trans('auth.failed')); //TODO add localized message
 
+        if ($request['device_token']) $user->device_token = $request['device_token'];
+        if ($request['device_type']) $user->device_type = $request['device_type'];
+        $user->save();
+
         $user->load('city');
 
-
-        return response()->json($user);
+        return response()->json(new AuthorizedUserResource($user));
     }
 
     public function auth(Request $request) {
         $user = $request['user']->load('city');
-        return response()->json($user);
+        if ($request['device_token']) $user->device_token = $request['device_token'];
+        if ($request['device_type']) $user->device_type = $request['device_type'];
+        $user->save();
+        return response()->json(new AuthorizedUserResource($user));
     }
 
     public function createUser(CreateUserRequest $request) {
@@ -142,7 +153,7 @@ class UserController extends Controller
         $user->save();
 
         $user->load('city');
-        return response()->json($user);
+        return response()->json(new AuthorizedUserResource($user));
     }
 
     public function resetPassword(Request $request) {
@@ -198,7 +209,7 @@ class UserController extends Controller
 
         $user->save();
         $user->load('city');
-        return response()->json($user);
+        return response()->json(new AuthorizedUserResource($user));
     }
 
     public function changeType(Request $request) {
@@ -212,7 +223,7 @@ class UserController extends Controller
         $user->type = $request['type'];
         $user->save();
 
-        return $user;
+        return response()->json(new AuthorizedUserResource($user));
     }
 
     public function changePassword(Request $request) {
@@ -230,7 +241,17 @@ class UserController extends Controller
 
         $user->save();
 
-        return response()->json($user);
+        return response()->json(new AuthorizedUserResource($user));
     }
 
+    public function sendPush(Request $request) {
+        $rules = [
+            'title' => 'required',
+            'body' => 'required'
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) return $this->Result(400, null, $validator->errors());
+
+        return FirebasePush::sendMessage($request['title'], $request['body'], $request['user']);
+    }
 }

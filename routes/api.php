@@ -34,8 +34,13 @@ Route::group(['namespace' => 'v1\Rest', 'prefix' => 'v1'], function() {
         Route::post('password/change', 'UserController@changePassword');
         Route::post('create', 'UserController@createUser');
 
+        Route::group(['middleware' => 'userAuth:executor'], function() {
+            Route::get('materials/orders/list', 'MaterialOrderController@ordersList');
+        });
+
         Route::group(['middleware' => 'userAuth'], function() {
 
+            Route::post('push', 'UserController@sendPush');
             Route::post('edit', 'UserController@editProfile');
             Route::post('edit/type', 'UserController@changeType');
             Route::get('auth', 'UserController@auth');
@@ -47,9 +52,9 @@ Route::group(['namespace' => 'v1\Rest', 'prefix' => 'v1'], function() {
         });
 
         Route::group(['middleware' => 'userAuth:user'], function() {
-
             Route::post('materials/orders', 'MaterialOrderController@create');
             Route::post('materials/orders/responses/choose', 'MaterialOrderController@chooseExecutor');
+            Route::post('materials/orders/responses/decline', 'MaterialOrderController@declineExecutor');
             Route::get('materials/orders/responses/{id}', 'MaterialOrderController@responses');
         });
 
@@ -65,8 +70,6 @@ Route::group(['namespace' => 'v1\Rest', 'prefix' => 'v1'], function() {
 
             Route::post('materials/orders/responses', 'MaterialOrderController@createResponse');
 
-            Route::get('technics/orders/list', 'TechnicOrderController@ordersList');
-            Route::get('materials/orders/list', 'MaterialOrderController@ordersList');
         });
     });
 

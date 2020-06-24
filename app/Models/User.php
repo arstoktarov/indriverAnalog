@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\UserMaterials;
 use Carbon\Carbon;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -24,7 +23,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'city_id', 'push', 'sound', 'lang',
+        'name', 'city_id', 'push', 'sound', 'lang', 'device_token', 'device_type'
     ];
 
     /**
@@ -33,7 +32,13 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token', 'phone_verified_at', 'city_id', 'created_at', 'updated_at', 'phone_verification_code'
+        'password',
+        'phone_verification_code',
+        'token', 'push', 'sound', 'balance', 'lang',
+        'remember_token',
+        'phone_verified_at',
+        'created_at', 'updated_at',
+        'device_token', 'device_type'
     ];
     /**
      * The attributes that should be cast to native types.
@@ -70,6 +75,14 @@ class User extends Authenticatable
     public function materialOrders() {
         $foreign = $this->type == User::TYPE_USER ? 'user_id' : 'executor_id';
         return $this->hasMany(MaterialOrder::class, $foreign);
+    }
+
+    public function userTechnic() {
+        return $this->hasMany(UserTechnic::class);
+    }
+
+    public function userMaterials() {
+        return $this->hasMany(UserMaterials::class);
     }
 
 

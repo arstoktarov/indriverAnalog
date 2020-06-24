@@ -25,4 +25,5 @@ class Material extends Model
     public function scopeWithTypeColumns($query) {
         return $query->addSelect('m_types.charac_title', 'm_types.charac_unit', 'm_types.title');
     }
+
 }

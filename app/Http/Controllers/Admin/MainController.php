@@ -89,7 +89,8 @@ class MainController extends Controller
         $data['city'] = City::get()->count();
         $data['mType'] = MaterialType::get()->count();
         $data['tType'] = TechnicType::get()->count();
-        $data['users'] = User::get()->count();
+        $data['users'] = User::where('type', 2)->get()->count();
+        $data['clients'] = User::where('type', 1)->get()->count();
         return view('admin.index', ['data' => $data]);
     }
 }

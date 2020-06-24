@@ -40,6 +40,8 @@ class CityController extends Controller
     {
         $city = new City();
         $city->title = $request['title'];
+        $city->lat = $request['lat'];
+        $city->long = $request['long'];
 
         $city->save();
         return back()->withMessage('Успешно!');

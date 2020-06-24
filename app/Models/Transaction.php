@@ -16,4 +16,8 @@ class Transaction extends Model
     ];
 
     protected $fillable = self::FILLABLES;
+
+    public function user() {
+        return $this->belongsTo(User::class);
+    }
 }

@@ -9,9 +9,12 @@ const { app, server } = require('./Loaders/Express');
 const { Websocket, wss, rooms } = require('./Loaders/Websocket');
 const redis = require('./Loaders/Redis');
 const uuid = require('uuid-random/index');
+const PushSender = require('./PushSender');
 
 let sockets = new Set();
 let orders = new Set();
+let search_orders = new Set();
+let users = {};
 
 
 const models = require('./Models/Models');
@@ -43,17 +46,21 @@ wss.on('connection',  function connection(ws) {
     //let myOrder = null;
 
     let ordersInterval = function() {
-        if (socket.user && socket.user.technics && socket.user.type === 2) {
+        if (socket.user) {
+            if (socket.user.technics && socket.user.type === 2) {
 
-            let personalOrders = Array.from(orders)
-                .filter(function (order) {
-                    return order.executor_socket == null && socket.user.technics.find(function (technic) {
-                        return technic.id.toString() === order.data.technic_id.toString()
-                    });
-                })
-                .map(order => order.getData());
+                let personalOrders = Array.from(search_orders)
+                    .filter(function (order) {
+                        return order.data.status == models.Order.NOT_STARTED
+                        //&& order.city_id == socket.user.city_id
+                        // && socket.user.technics.find(function (technic) {
+                        //     return technic.id == order.data.technic_id;
+                        // });
+                    })
+                    .map(order => order.getData());
 
-            socket.send(functions.response('orders', personalOrders));
+                socket.send(functions.response('orders', personalOrders));
+            }
         }
     };
 
@@ -77,17 +84,22 @@ wss.on('connection',  function connection(ws) {
     socket.on('close', function(reason) {
         consoleMsg.log('User ' + ((socket.uuid) ? socket.uuid : 'anon') + ' has disconnected with reasonCode ' + reason);
 
-        socket.rooms.forEach(function(room) {
-            rooms.removeElem(room, socket);
-        });
+        sockets.delete(socket);
+        socket.clearInterval("orders");
         clearTimeout(pinger);
-        removeExecResponses(socket);
+        try {
+            removeExecResponses(socket);
+        }catch (e) {
+            consoleMsg.log(`Cannot removeExecResponses ${e}`);
+        }
         if (socket.order && socket.order.data.status === models.Order.NOT_STARTED) {
             orders.delete(socket.order);
+            search_orders.delete(socket.order);
+            socket.order.responses.forEach(function(response) {
+                if (response.socket) response.socket.send(functions.response("userDeclined", socket.order.getData()));
+            });
         }
-        sockets.delete(socket);
         socket.destroy();
-        socket = null;
     });
 
     //pong from user
@@ -112,7 +124,15 @@ wss.on('connection',  function connection(ws) {
             });
             socket.setOrder(order);
             socket.send(functions.response(eventName, user));
-            if (socket.isExecutor() && await socket.hasProcessingOrder()) {
+            if (await socket.hasProcessingOrder()) {
+                await socket.loadOrder(orders);
+                socket.send(functions.response("orderStarted", socket.order.getData()));
+                consoleMsg.log('User/Executor has already processing order', socket.order.getData());
+            }
+
+            if (socket.isExecutor()) {
+                ordersInterval();
+                socket.interval("orders", ordersInterval, 10000);
             }
         }
         else {
@@ -159,6 +179,13 @@ wss.on('connection',  function connection(ws) {
             return;
         }
 
+        let technic = await models.Technic.getTechnicById(data['technic_id']);
+        let min_accepted_price = technic.type.min_order_price;
+        if (data['price'] < min_accepted_price) {
+            socket.send(functions.errorResponse({message: `Price of order should be more than or equal to ${min_accepted_price}`}));
+            return;
+        }
+
         let orderData = {
             uuid: uuid(),
             user_id: socket.user.id,
@@ -167,16 +194,19 @@ wss.on('connection',  function connection(ws) {
             city_id: data['city_id'],
             technic_id: data['technic_id'],
             address: data['address'],
-            lat: data['lat'],
-            long: data['long'],
-            price: data['price'],
+            lat: data['lat'].toString(),
+            long: data['long'].toString(),
+            price: data['price'].toString(),
             description: data['description'],
-            technic: await models.Technic.getTechnicById(data['technic_id'])
+            technic: technic,
+            executor_technic: null
         };
 
         let order = new Order(orderData, socket);
+        order.setUserData(socket.user);
         socket.order = order;
         orders.add(order);
+        search_orders.add(order);
 
 
         socket.send(functions.response('makeOrder', order.getData()));
@@ -189,9 +219,9 @@ wss.on('connection',  function connection(ws) {
         }
         let order = socket.order;
         if (order) {
-             order = await socket.loadOrder();
+             order = await socket.loadOrder(orders);
+            socket.send(functions.response("myOrder", order.getData()));
         }
-        socket.send(functions.response("myOrder", order.getData()));
     });
 
     socket.addEventListener("respondOrder", async function(data, eventName) {
@@ -224,7 +254,7 @@ wss.on('connection',  function connection(ws) {
 
         if (!response) {
             consoleMsg.log("there is no response");
-            response = new Response(socket, data['price'], order.data.uuid);
+            response = new Response(socket, data['price'], order.data.uuid, order);
             order.addResponse(response);
             socket.responses.add(response);
         }
@@ -233,6 +263,7 @@ wss.on('connection',  function connection(ws) {
         let orderOwner = order.user_socket;
         consoleMsg.log(order.user_socket.uuid);
         if (orderOwner) {
+            //PushSender.se
             consoleMsg.log(`Sending message to user ${orderOwner.user.name}`);
             orderOwner.send(functions.response('newResponse', order.getResponses()));
         }
@@ -261,20 +292,68 @@ wss.on('connection',  function connection(ws) {
             return data['executor_uuid'].toString() === elem.socket.uuid.toString();
         });
 
+        if (!executor_response) {
+            socket.send(functions.errorResponse({"message": "Отклик не найден"}));
+            return;
+        }
+
+        let executor_socket = executor_response.socket;
+
+        if (!executor_response.socket) {
+            socket.send(functions.errorResponse({"message": "Исполнитель отключен"}));
+            return;
+        }
+
         if (await executor_response.socket.hasProcessingOrder()) {
             socket.send(functions.errorResponse({"message": "Исполнитель принял другой заказ"}));
             return;
         }
 
-        //socket.order.data.price = executor_response.price;
-        //socket.order.responses.clear();
-        //executor_response.socket.clearInterval("orders");
+        let order = socket.order;
+
+        //search_orders.delete(socket.order);
+
+        //socket.send(functions.response('chooseExecutor', socket.order.getData()));
+
+        order.data.price = executor_response.price;
+        order.executor_socket = executor_socket;
+        order.setExecutorData(order.executor_socket.user);
+        order.responses.clear();
+
+        order.executor_socket.clearInterval("orders");
+
+        //socket.order = order;
+
+        search_orders.delete(socket.order);
+        let comission = 5;
+        let balance = socket.user.balance;
+        let new_balance = balance - (socket.order.data.price * (comission / 100));
+        consoleMsg.log(`${socket.user.name}'s new balance ${new_balance}`);
+
+        let db_order = await models.Order.query().insert({
+            uuid: order.data.uuid,
+            user_id: order.user_socket.user.id,
+            executor_id: order.executor_socket.user.id,
+            status: models.Order.IN_PROCESS,
+            city_id: order.data.city_id,
+            technic_id: order.data.technic_id,
+            address: order.data.address,
+            lat: order.data.lat,
+            long: order.data.long,
+            price: order.data.price,
+            description: order.data.description
+        });
+
+        if (executor_socket.user) {
+            let executor = await models.User.query().patch({balance: new_balance}).findById(socket.user.id);
+        }
+
+        await order.reloadData();
 
 
-        socket.send(functions.response('chooseExecutor', socket.order.getData() ));
-
-        executor_response.socket.send(functions.response('userResponded', socket.order.getData()));
-
+        if (order.executor_socket) order.executor_socket.send(functions.response("orderStarted", order.getData()));
+        if (order.user_socket) order.user_socket.send(functions.response("orderStarted", order.getData()));
+        //executor_response.socket.send(functions.response('userResponded', socket.order.getData()));
     });
 
     socket.addEventListener("declineExecutor", async function(data, eventName) {
@@ -299,6 +378,7 @@ wss.on('connection',  function connection(ws) {
         let executor_response = functions.setFind(socket.order.responses, function(elem) {
             return data['executor_uuid'].toString() === elem.socket.uuid.toString();
         });
+        search_orders.add(socket.order);
 
         if (socket.order) {
             socket.order.deleteResponse(executor_response);
@@ -332,12 +412,17 @@ wss.on('connection',  function connection(ws) {
         order.responses.clear();
 
         socket.order = order;
+        socket.order.setExecutorData(order.executor_socket.user);
         socket.clearInterval("orders");
-        orders.delete(socket.order);
-        let comission = 5;
+        search_orders.delete(socket.order);
+
+
+        let comission = 5; //TODO set comission value from database
         let balance = socket.user.balance;
         let new_balance = balance - (socket.order.data.price * (comission / 100));
         consoleMsg.log(`${socket.user.name}'s new balance ${new_balance}`);
+
+
 
         let db_order = await models.Order.query().insert({
             uuid: order.data.uuid,
@@ -364,12 +449,13 @@ wss.on('connection',  function connection(ws) {
 
     });
 
-    socket.addEventListener("acceptOrder", async function(data, eventName) {
+    async function acceptOrder(data, eventName) {
         let constraints = {
             'order_uuid': {presence:true},
         };
         let errors = validate(data, constraints);
         if (errors !== undefined) {
+            consoleMsg.log('Hello');
             socket.send(functions.errorResponse(errors));
             return;
         }
@@ -385,15 +471,17 @@ wss.on('connection',  function connection(ws) {
         let response = functions.setFind(order.responses, (response) => {
             return response.socket === socket;
         });
-        if (!order || !response) return;
+        if (!order || !response) {
+            return;
+        }
 
         order.data.price = response.price;
         order.executor_socket = socket;
+        order.setExecutorData(order.executor_socket.user);
         order.responses.clear();
 
         socket.order = order;
-        socket.clearInterval("orders");
-        orders.delete(socket.order);
+        search_orders.delete(socket.order);
         let comission = 5;
         let balance = socket.user.balance;
         let new_balance = balance - (socket.order.data.price * (comission / 100));
@@ -422,6 +510,10 @@ wss.on('connection',  function connection(ws) {
         order.executor_socket.send(functions.response("orderStarted", order.getData()));
         order.user_socket.send(functions.response("orderStarted", order.getData()));
 
+    }
+
+    socket.addEventListener("acceptOrder", async (data, eventName) => {
+        await acceptOrder(data, eventName);
     });
 
     socket.addEventListener("orderStarted", function(data, eventName) {
@@ -441,9 +533,12 @@ wss.on('connection',  function connection(ws) {
             return;
         }
 
-        socket.order.destroy();
         orders.delete(socket.order);
-        
+        search_orders.delete(socket.order);
+        socket.order.responses.forEach(function(response) {
+            if (response.socket) response.socket.send(functions.response("userDeclined", socket.order.getData()));
+        });
+        socket.order.destroy();
         socket.order = null;
     });
 
@@ -463,18 +558,20 @@ wss.on('connection',  function connection(ws) {
 
         let db_order = await models.Order.query().patch({status: models.Order.DONE}).where('uuid', order.data.uuid);
 
-        order.user_socket.send(functions.response(eventName, data));
-        order.executor_socket.send(functions.response(eventName, data));
+        if (order.user_socket) order.user_socket.send(functions.response(eventName, data));
+        if (order.executor_socket) order.executor_socket.send(functions.response(eventName, data));
 
+
+        if (order.executor_socket) {
+            order.executor_socket.interval("orders", ordersInterval, 10000);
+        }
         orders.delete(order);
+        search_orders.delete(order);
 
-        order.executor_socket.interval("orders", ordersInterval, 10000);
-
-        order.executor_socket.order = null;
-        order.user_socket.order = null;
+        if (order.executor_socket) order.executor_socket.order = null;
+        if (order.user_socket) order.user_socket.order = null;
         socket.order = null;
         order.destroy();
-
     });
 
     socket.addEventListener("declineOrder", async function(data, eventName) {});
@@ -483,11 +580,17 @@ wss.on('connection',  function connection(ws) {
 
     });
 
-    socket.interval("orders", ordersInterval, 10000);
 
     socket.interval("resetOrders", function() {
 
     });
+
+    function startOrder(order, socket) {
+        socket.clearInterval("orders");
+        socket.send(functions.response("orderStarted", order.getData()));
+        search_orders.delete(order);
+    }
+
 });
 
 function removeExecResponses(socket) {
@@ -505,6 +608,7 @@ setInterval(function() {
     consoleMsg.info("sockets: " + JSON.stringify(functions.pluck(sockets, 'uuid')));
     consoleMsg.info("rooms: " + Array.from(rooms.getWsRooms().keys()));
     consoleMsg.info("orders: " + JSON.stringify(Array.from(orders).map(order => order.data.uuid)));
+    consoleMsg.info("search_orders: " + JSON.stringify(Array.from(search_orders).map(order => order.data.uuid)));
 }, 10000);
 
 wss.on('close', function() {

@@ -43,6 +43,7 @@ class TechnicTypeController extends Controller
         $type->description = $request['description'];
         $type->charac_title = $request['charac_title'];
         $type->charac_unit = $request['charac_unit'];
+        $type->min_order_price = $request['min'];
         if($request['image']){
             $type->image = $this->uploadFile($request['image']);
         }

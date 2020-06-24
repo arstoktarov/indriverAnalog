@@ -52,13 +52,6 @@
                                                     <button type="submit" class="waves-effect btn btn-success">Перейти</button>
                                                 </form>
                                             </td>
-{{--                                            <td>--}}
-{{--                                                <form action="{{route('technicCharacteristics.index')}}" style="display:inline-block">--}}
-{{--                                                    @csrf--}}
-{{--                                                    <input type="hidden" value="{{$type->id}}" name="type_id">--}}
-{{--                                                    <button type="submit" class="waves-effect btn btn-success">Перейти</button>--}}
-{{--                                                </form>--}}
-{{--                                            </td>--}}
                                             <td>
                                                 <a href="{{route('technicTypes.edit', $type->id)}}" class="waves-effect btn btn-primary"><i class="material-icons">edit</i></a>
                                                 <form action="{{route('technicTypes.destroy', $type->id)}}" method="POST" style="display:inline-block">
@@ -116,6 +109,12 @@
                                     <div class="form-line">
                                         <input required type="text" class="form-control" id="charac_unit" name="charac_unit"/>
                                         <label class="form-label">Измерение характеристики</label>
+                                    </div>
+                                </div>
+                                <div class="form-group form-float">
+                                    <div class="form-line">
+                                        <input required type="number" class="form-control" id="min" name="min"/>
+                                        <label class="form-label">Минимальная цена заказа</label>
                                     </div>
                                 </div>
                                 <div class="modal-footer">

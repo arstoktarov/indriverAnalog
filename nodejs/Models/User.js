@@ -14,7 +14,6 @@ class User extends Model {
             join: {
                 from: 'users.id',
                 through: {
-                    // persons_movies is the join table.
                     from: 'users_technics.user_id',
                     to: 'users_technics.technic_id'
                 },
@@ -34,6 +33,10 @@ class User extends Model {
             })
             .where('token', token)
             .first();
+    }
+
+    static async getUserById(id) {
+        return await User.query().findById(id);
     }
 }
 

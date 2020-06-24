@@ -11,16 +11,20 @@
                         <div class="table-responsive">
                             <table class="table">
                                 <tr>
+                                    <td>Количество клиентов - </td>
+                                    <td>{{$data['clients']}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Количество водителей - </td>
+                                    <td>{{$data['users']}}</td>
+                                </tr>
+                                <tr>
                                     <td>Количество городов - </td>
                                     <td>{{$data['city']}}</td>
                                 </tr>
                                 <tr>
                                     <td>Количество материалов - </td>
                                     <td>{{$data['mType']}}</td>
-                                </tr>
-                                <tr>
-                                    <td>Количество пользователей - </td>
-                                    <td>{{$data['users']}}</td>
                                 </tr>
                                 <tr>
                                     <td>Количество техник - </td>

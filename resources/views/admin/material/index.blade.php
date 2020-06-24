@@ -63,7 +63,7 @@
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <h5 class="modal-header">
-                            Добавить город
+                            Добавить материал
                         </h5>
                         <div class="modal-body">
                             <form action="{{route('materials.store')}}" method="post" enctype="multipart/form-data">

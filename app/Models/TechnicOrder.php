@@ -19,4 +19,20 @@ class TechnicOrder extends Model
     public function getStatusNameAttribute() {
         return trans("order_statuses.technic.$this->status");
     }
+
+    public function city() {
+        return $this->belongsTo(City::class);
+    }
+
+    public function technic() {
+        return $this->belongsTo(Technic::class);
+    }
+
+    public function user() {
+        return $this->belongsTo(User::class);
+    }
+
+    public function executor() {
+        return $this->belongsTo(User::class);
+    }
 }

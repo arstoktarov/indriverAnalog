@@ -55,6 +55,9 @@ Route::group(['prefix' => '/admin', 'namespace' => 'Admin', 'middleware' => 'acc
     Route::resource('characterTypes', 'CharacteristicTypeController');
     Route::resource('technicTypes', 'TechnicTypeController');
     Route::resource('clients', 'ClientController');
+    Route::resource('transactions', 'TransactionController');
+    Route::resource('technicOrders', 'TechnicOrderController');
+    Route::resource('materialOrders', 'MaterialOrderController');
 
 });
 

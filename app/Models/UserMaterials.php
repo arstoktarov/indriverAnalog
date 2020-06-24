@@ -15,7 +15,14 @@ class UserMaterials extends Model
 
     protected $table = 'user_materials';
     protected $fillable = ['user_id', 'material_id', 'description', 'image'];
-    protected $hidden = ['pivot'];
+    protected $hidden = ['pivot', 'created_at', 'updated_at'];
 
+    public function material() {
+        return $this->belongsTo(Material::class);
+    }
+
+    public function user() {
+        return $this->belongsTo(User::class);
+    }
 
 }

@@ -31,6 +31,7 @@ class TechnicController extends Controller
             'technic_id' => 'required|exists:technics,id',
             'image' => 'image',
             'description' => 'string|max:255',
+            'model' => 'string|max:255'
         ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails())

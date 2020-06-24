@@ -34,4 +34,21 @@ class MaterialOrder extends Model
         return $this->hasMany(MaterialOrderResponse::class, 'order_id');
     }
 
+    public function city() {
+        return $this->belongsTo(City::class);
+    }
+
+    public function material() {
+        return $this->belongsTo(Material::class);
+    }
+
+    public function user() {
+        return $this->belongsTo(User::class);
+    }
+
+    public function executorMaterial() {
+        return $this->belongsTo(UserMaterials::class, 'executor_material_id');
+            //->materialJoined();
+    }
+
 }

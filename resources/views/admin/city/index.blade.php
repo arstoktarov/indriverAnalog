@@ -27,6 +27,7 @@
                                     <tr>
                                         <th>#</th>
                                         <th>Название</th>
+                                        <th>Гео данные</th>
                                         <th></th>
                                     </tr>
                                     </thead>
@@ -35,6 +36,7 @@
                                         <tr>
                                             <td>{{$city->id}}</td>
                                             <td>{{$city->title}}</td>
+                                            <td>{{$city->lat}}, {{$city->long}}</td>
                                             <td>
                                                 <a href="{{route('cities.edit', $city->id)}}" class="waves-effect btn btn-primary"><i class="material-icons">edit</i></a>
                                                 <form action="{{route('cities.destroy', $city->id)}}" method="POST" style="display:inline-block">
@@ -67,6 +69,18 @@
                                     <div class="form-line">
                                         <input required type="text" class="form-control" id="title" name="title"/>
                                         <label class="form-label">Название</label>
+                                    </div>
+                                </div>
+                                <div class="form-group form-float p-t-20">
+                                    <div class="form-line">
+                                        <input required type="text" class="form-control" id="lat" name="lat"/>
+                                        <label class="form-label">Ширина (пишите через точку)</label>
+                                    </div>
+                                </div>
+                                <div class="form-group form-float p-t-20">
+                                    <div class="form-line">
+                                        <input required type="text" class="form-control" id="long" name="long"/>
+                                        <label class="form-label">Долгота (пишите через точку)</label>
                                     </div>
                                 </div>
                                 <div class="modal-footer">

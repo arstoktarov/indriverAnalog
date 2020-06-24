@@ -107,7 +107,7 @@ class WSUser {
     }
 
     clearInterval(name) {
-        clearInterval(this.intervals.get(name));
+        if (this.intervals.has(name)) clearInterval(this.intervals.get(name));
     }
 
     //функция для создания таймаута который будет подключен к массиву timeouts
@@ -200,6 +200,23 @@ class WSUser {
         return !!(this.hasUser() && this.user.type === TYPE_COURIER);
     }
 
+    getTechnic(id) {
+        try {
+            let technics = Array.from(this.user.technics);
+            return technics.find(function (technic) {
+                return Number(technic.technic_id) === Number(id);
+            });
+        }
+        catch (e) {
+            consoleMsg.log(`Cannot get technic: ${e}`);
+        }
+        return null;
+    }
+
+    isUser() {
+        return !!(this.hasUser() && this.user.type === TYPE_USER);
+    }
+
     getUser() {
         if (!this.user) return null;
         return  {
@@ -231,28 +248,45 @@ class WSUser {
         return !!(this.order && this.order.uuid);
     }
 
-    async loadOrder() {
-        let query = models.Order.query()
-            .withGraphFetched('technic')
-            .modifyGraph('technic', builder => {
-                builder.select(models.Technic.columns)
-                .withGraphFetched('type')
-                .modifyGraph('type', builder => {
-                    builder.select(models.Technic_Type.select_columns);
-                });
-            })
-            .where('status', models.Order.IN_PROCESS);
+    async loadOrder(orders) {
+        let orderQuery = models.Order.getOrderWithTechnic();
+
+
         if (this.isExecutor()) {
-            let orderData = await query.where('executor_id', this.user.id).first();
+            let orderData = await orderQuery.where('executor_id', this.user.id).first();
             if (orderData) {
-                this.order = new Order(orderData, this);
+
+                let order = functions.setFind(orders, function(order) {
+                    return order.data.uuid = orderData.uuid
+                });
+                if (!order) {
+                    order = new Order(orderData);
+                    orders.add(order);
+                }
+                await order.resetUser();
+                await order.resetExecutor();
+
+                this.order = order;
+                this.order.executor_socket = this;
             }
             return this.order;
         }
-        else if (this.hasUser()) {
-            let orderData = await query.where('user_id', this.user.id).first();
+        else if (this.isUser()) {
+            let orderData = await orderQuery.where('user_id', this.user.id).first();
             if (orderData) {
-                this.order = new Order(orderData, this);
+
+                let order = functions.setFind(orders, function(order) {
+                    return order.data.uuid = orderData.uuid
+                });
+                if (!order) {
+                    order = new Order(orderData);
+                    orders.add(order);
+                }
+                await order.resetUser();
+                await order.resetExecutor();
+
+                this.order = order;
+                this.order.user_socket = this;
             }
             return this.order;
         }
@@ -266,6 +300,13 @@ class WSUser {
                 .where('status', models.Order.IN_PROCESS)
                 .first();
             return !!exec_order;
+        }
+        else if (this.isUser()) {
+            let user_order = await models.Order.query()
+                .where('user_id', this.user.id)
+                .where('status', models.Order.IN_PROCESS)
+                .first();
+            return !!user_order;
         }
     }
 
