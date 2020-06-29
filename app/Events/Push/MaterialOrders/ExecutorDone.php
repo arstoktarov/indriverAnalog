@@ -23,9 +23,9 @@ class ExecutorDone
     public $executor;
     public $user;
 
-    public function __construct(User $user, User $executor)
+    public function __construct(User $user)
     {
-        $this->executor = $executor;
+        //$this->executor = $executor;
         $this->user = $user;
     }
 

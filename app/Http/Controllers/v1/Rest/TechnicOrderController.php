@@ -11,7 +11,7 @@ class TechnicOrderController extends Controller
 {
     public function index(Request $request) {
         $orders = $request['user']->technicOrders()->with([
-            'city',
+            'city', 'user', 'executor',
             'technic' => function($query) {
                 $query->with('type');
             }

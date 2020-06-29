@@ -199,18 +199,23 @@ wss.on('connection',  function connection(ws) {
             return;
         }
 
+        if (await socket.hasProcessingOrder()) {
+            socket.send(functions.errorResponse({message: "you already have order"}));
+            return;
+        }
+
         let order = functions.setFind(orders, (order) => {
             return order.data.uuid === data['order_uuid']
         });
+        if (!order) {
+            socket.send(functions.errorResponse({message: 'you have no permissions'}));
+            return;
+        }
         let response = functions.setFind(order.responses, (response) => {
             return response.socket === socket;
         });
         if (!socket.user || !order) {
             socket.send(functions.errorResponse({message: 'you have no permissions'}));
-            return;
-        }
-        if (await socket.hasProcessingOrder()) {
-            socket.send(functions.errorResponse({message: "you already have order"}));
             return;
         }
 
@@ -255,10 +260,6 @@ wss.on('connection',  function connection(ws) {
         let executor_response = functions.setFind(socket.order.responses, function(elem) {
             return data['executor_uuid'].toString() === elem.socket.uuid.toString();
         });
-
-        if (socket.order) {
-            socket.order.responses.clear();
-        }
 
         if (!executor_response) {
             socket.send(functions.errorResponse({"message": "Отклик не найден"}));
@@ -521,7 +522,7 @@ wss.on('connection',  function connection(ws) {
 
         let order = socket.order;
 
-        //if (!order) return;
+        if (!order) return;
 
         let db_order = await models.Order.query().patch({status: models.Order.DONE}).where('uuid', order.data.uuid);
 

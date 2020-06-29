@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\v1\Rest;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserMaterialResource;
 use App\Models\Material;
 use App\Models\MaterialType;
 use App\Models\User;
@@ -35,6 +36,26 @@ class MaterialController extends Controller
         return response()->json($materials->paginate(self::PAGINATE_COUNT));
     }
 
+    public function show($id, Request $request) {
+
+        $material = Material::find($id);
+        if (!$material) return $this->Result(400, null, 'Material not found'); // TODO add localized answer
+
+        $user = $request['user'];
+
+        $userMaterial = $user->materials()
+            ->where('material_id', $material->id)
+            ->withPivot('image', 'description', 'material_id')
+            ->with('type')
+            //->select('user_materials.id', 'user_materials.material_id', 'description', 'image', 'type_id')
+            //->select()
+            ->first();
+
+        if (!$userMaterial) return $this->Result(400, null, "You don't have this material");
+
+        return response()->json(new UserMaterialResource($userMaterial));
+    }
+
     public function types(Request $request) {
         $types = MaterialType::paginate(self::PAGINATE_COUNT);
         return $types;
@@ -64,7 +85,6 @@ class MaterialController extends Controller
             'description' => 'string|max:255'
         ];
         $validator = Validator::make($request->all(), $rules);
-
         if ($validator->fails()) return $this->Result(400, null, $validator->errors()->first());
 
         $material = Material::find($request['material_id']);
@@ -78,9 +98,46 @@ class MaterialController extends Controller
         $userMaterial->fill($request->all());
         $userMaterial->save();
 
-        $materialReloaded = $user->materials()->where('material_id', $material->id)->with('type')->select()->first();
+        $materialReloaded = $user->materials()
+            ->where('material_id', $material->id)
+            ->withPivot('image', 'description')
+            ->with('type')
+            //->select('user_materials.id', 'user_materials.material_id', 'description', 'image', 'type_id')
+            ->select()
+            ->first();
 
-        return response()->json($materialReloaded);
+        return response()->json(new UserMaterialResource($materialReloaded));
+    }
+
+    public function editMaterial($id, Request $request) {
+        $rules = [
+            'image' => 'image',
+            'description' => 'string|max:255'
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) return $this->Result(400, null, $validator->errors()->first());
+
+        $material = Material::find($id);
+        if (!$material) return $this->Result(400, null, 'Material not found'); // TODO add localized answer
+
+        $user = $request['user'];
+
+        $userMaterial = UserMaterials::where('user_id', $user->id)->where('material_id', $material->id)->first();
+
+        if (!$userMaterial) return $this->Result(400, null, "You don't have this material");
+
+        $userMaterial->fill($request->except('material_id'));
+        $userMaterial->save();
+
+        $materialReloaded = $user->materials()
+            ->where('material_id', $material->id)
+            ->withPivot('image', 'description', 'material_id')
+            ->with('type')
+            //->select('user_materials.id', 'user_materials.material_id', 'description', 'image', 'type_id')
+            //->select()
+            ->first();
+
+        return response()->json(new UserMaterialResource($materialReloaded));
     }
 
     public function deleteMaterial($id, Request $request) {
@@ -92,8 +149,12 @@ class MaterialController extends Controller
     public function userMaterials(Request $request) {
         $user = $request['user'];
 
-        $materials = $user->materials()->with('type')->select()->get()->makeHidden('pivot');
+        $materials = $user->materials()
+            ->with('type')
+            ->withPivot('image', 'description', 'material_id')
+            ->get()
+            ->makeHidden('pivot');
 
-        return response()->json($materials);
+        return response()->json(UserMaterialResource::collection($materials));
     }
 }

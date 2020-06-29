@@ -53,6 +53,8 @@ Route::group(['namespace' => 'v1\Rest', 'prefix' => 'v1'], function() {
 
         Route::group(['middleware' => 'userAuth:user'], function() {
             Route::post('materials/orders', 'MaterialOrderController@create');
+            Route::post('materials/orders/cancel', 'MaterialOrderController@cancelOrder');
+            Route::post('materials/orders/done', 'MaterialOrderController@doneOrder');
             Route::post('materials/orders/responses/choose', 'MaterialOrderController@chooseExecutor');
             Route::post('materials/orders/responses/decline', 'MaterialOrderController@declineExecutor');
             Route::get('materials/orders/responses/{id}', 'MaterialOrderController@responses');
@@ -62,10 +64,15 @@ Route::group(['namespace' => 'v1\Rest', 'prefix' => 'v1'], function() {
 
             Route::post('technics/add', 'TechnicController@addTechnic');
             Route::get('technics', 'TechnicController@userTechnics');
+            Route::get('technics/{id}', 'TechnicController@show');
+            Route::post('technics/{id}', 'TechnicController@editTechnic');
             Route::delete('technics/{id}', 'TechnicController@deleteTechnic');
 
+            Route::post('materials/orders/done', 'MaterialOrderController@doneOrder');
             Route::post('materials/add', 'MaterialController@addMaterial');
             Route::get('materials', 'MaterialController@userMaterials');
+            Route::get('materials/{id}', 'MaterialController@show');
+            Route::post('materials/{id}', 'MaterialController@editMaterial');
             Route::delete('materials/{id}', 'MaterialController@deleteMaterial');
 
             Route::post('materials/orders/responses', 'MaterialOrderController@createResponse');

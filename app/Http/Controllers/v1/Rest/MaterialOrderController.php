@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\v1\Rest;
 
 use App\Events\Push\MaterialOrders\ExecutorAccepted;
+use App\Events\Push\MaterialOrders\ExecutorDone;
 use App\Events\Push\MaterialOrders\ExecutorResponded;
 use App\Http\Controllers\Controller;
 use App\Models\MaterialOrder;
@@ -17,10 +18,8 @@ class MaterialOrderController extends Controller
 
     public function index(Request $request) {
         $user = $request['user'];
-
         $materialOrders = $user->materialOrders()->with([
-            'user',
-            'city',
+            'user', 'executor', 'city',
             'material' => function($query) {
                 $query->with('type');
             },
@@ -31,9 +30,10 @@ class MaterialOrderController extends Controller
     public function ordersList(Request $request) {
         $user = $request['user'];
 
-        $material_ids = $user->materials->pluck('id');
+        $material_ids = $user->materials->pluck('material_id');
 
-        $orders = MaterialOrder::whereIn('material_id', $material_ids)
+        $orders = MaterialOrder::where('status', MaterialOrder::STATUS_NOT_STARTED)
+            //  ->whereIn('material_id', $material_ids)
             ->with([
                 'user',
                 'city',
@@ -101,6 +101,7 @@ class MaterialOrderController extends Controller
         $m_order = MaterialOrder::find($request['order_id']);
 
         if (!$m_order) return $this->Result(404, null, 'Material not found');
+        if ($m_order->status != MaterialOrder::STATUS_NOT_STARTED) return $this->Result(404, null, 'This order already in process or done');
 
         $response = MaterialOrderResponse::firstOrNew([
             'user_id' => $request['user']->id,
@@ -151,6 +152,7 @@ class MaterialOrderController extends Controller
 
     public function responses($id, Request $request) {
         $materialOrder = MaterialOrder::find($id);
+        if (!$materialOrder) return $this->Result(404, null, 'Order not found');
         return $materialOrder->responses()->with(['user', 'order' => function($query) {
             $query->with(['executorMaterial', 'material', 'material.type']);
         }])->get();
@@ -169,8 +171,14 @@ class MaterialOrderController extends Controller
         if (!$response) return $this->Result(404, null, 'Response not found'); //TODO add localized answer
         $executor = $response->executor;
         if (!$executor) return $this->Result(404, null, 'Executor not found'); //TODO add localized answer
-        $materialOrder = $user->materialOrders()->find($response->order_id);
-        $executor_material = $executor->materials()->find($materialOrder->material_id);
+        $materialOrder = $user->materialOrders()->with([
+            'user', 'executor',
+            'city',
+            'material' => function($query) {
+                $query->with('type');
+            },
+        ])->find($response->order_id);
+        $executor_material = $executor->materials()->where('material_id', $materialOrder->material_id)->first();
         if (!$executor) return $this->Result(404, null, 'Executor not found');
         if (!$executor_material) return $this->Result(404, null, 'Executor has no material for order');
 
@@ -202,6 +210,56 @@ class MaterialOrderController extends Controller
         $materialOrder = $user->materialOrders()->find($response->order_id);
 
         return $materialOrder->responses;
+    }
+
+    public function cancelOrder(Request $request) {
+        $rules = [
+            'order_id' => 'required|numeric'
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) return $this->Result(400, null, $validator->errors());
+        $user = $request['user'];
+        if ($user->type != User::TYPE_USER) return $this->Result(400, null, 'You have no permissions');
+        $m_order = $user->materialOrders()->with([
+            'user', 'executor',
+            'city',
+            'material' => function($query) {
+                $query->with('type');
+            },
+        ])->find($request['order_id']);
+
+        if (!$m_order) return $this->Result(404, null, 'Material not found');
+
+        $m_order->delete();
+
+        return response()->json($m_order);
+    }
+
+    public function doneOrder(Request $request) {
+        $rules = [
+            'order_id' => 'required|numeric'
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) return $this->Result(400, null, $validator->errors());
+        $user = $request['user'];
+        $m_order = $user->materialOrders()->with([
+            'user',
+            'city',
+            'material' => function($query) {
+                $query->with('type');
+            },
+        ])->find($request['order_id']);
+
+        if (!$m_order) return $this->Result(404, null, 'Material not found');
+
+        $m_order->status = MaterialOrder::STATUS_DONE;
+        $m_order->save();
+
+        $m_order->responses()->delete();
+
+        event(new ExecutorDone($m_order->user));
+
+        return response()->json($m_order);
     }
 
 }

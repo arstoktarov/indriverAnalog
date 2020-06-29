@@ -30,6 +30,7 @@ class CreateUserRequest extends FormRequest
             'name' => 'required|string',
             'city_id' => 'required|numeric|exists:cities,id',
             'password' => 'required|min:6',
+            'image' => 'image'
         ];
     }
 

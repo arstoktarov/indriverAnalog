@@ -24,7 +24,7 @@ class MaterialOrder extends Model
         'delivery_deadline', 'address', 'lat', 'long', 'price', 'description'];
     protected $appends = ['status_name'];
 
-    protected $hidden = ['created_at', 'updated_at'];
+    protected $hidden = ['updated_at'];
 
     public function getStatusNameAttribute() {
         return trans("order_statuses.material.$this->status");
@@ -44,6 +44,10 @@ class MaterialOrder extends Model
 
     public function user() {
         return $this->belongsTo(User::class);
+    }
+
+    public function executor() {
+        return $this->belongsTo(User::class, 'executor_id');
     }
 
     public function executorMaterial() {

@@ -19,6 +19,7 @@ class AuthorizedUserResource extends JsonResource
             'id' => $model->id,
             'type' => $model->type,
             'name' => $model->name,
+            'image' => $model->image,
             'phone' => $model->phone,
             'city_id' => $model->city_id,
             'balance' => $model->balance,

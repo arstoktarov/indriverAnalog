@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasImage;
 use Carbon\Carbon;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -10,7 +11,7 @@ use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
-    use Notifiable;
+    use Notifiable, HasImage;
 
     const MATERIAL_IMAGES_PATH = 'user/materials';
     const TECHNIC_IMAGES_PATH = 'user/technics';
@@ -23,7 +24,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'city_id', 'push', 'sound', 'lang', 'device_token', 'device_type'
+        'name', 'city_id', 'push', 'sound', 'lang', 'device_token', 'device_type', 'image'
     ];
 
     /**

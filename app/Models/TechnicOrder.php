@@ -12,7 +12,7 @@ class TechnicOrder extends Model
     const STATUS_CANCELED = 3;
 
     protected $table = 't_orders';
-    protected $hidden = ['created_at', 'updated_at'];
+    protected $hidden = ['updated_at'];
     protected $appends = ['status_name'];
 
 

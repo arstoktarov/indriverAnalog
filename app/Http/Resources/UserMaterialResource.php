@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class UserTechnicResource extends JsonResource
+class UserMaterialResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -18,10 +18,9 @@ class UserTechnicResource extends JsonResource
         return [
             'id' => $model->id,
             'charac_value' => $model->charac_value,
-            'technic_id' => $model->pivot->technic_id,
+            'material_id' => $model->pivot->material_id,
             'image' => $model->pivot->image,
             'description' => $model->pivot->description,
-            'model' => $model->pivot->model,
             'type' => $model->type
         ];
     }
