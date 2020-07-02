@@ -30,6 +30,6 @@ class SendUserAcceptedResponsePush
     {
         $title = 'Пользователь принял ваш отклик';
         $body = 'Пользователь принял ваш отклик. Вы можете начинать заказ!';
-        Log::info(json_encode(FirebasePush::sendMessage($title, $body, $event->user)));
+        Log::info(json_encode(FirebasePush::sendMessage($title, $body, $event->executor)));
     }
 }

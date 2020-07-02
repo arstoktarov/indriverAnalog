@@ -28,7 +28,7 @@ wss.on('connection',  function connection(ws) {
 
     let ordersInterval = function() {
         if (socket.user) {
-            if (socket.user.technics && socket.user.type === wsUserModule.TYPE_EXECUTOR) {
+            if (socket.user.technics && socket.user.type === 2) {
 
                 let personalOrders = Array.from(search_orders)
                     .filter(function (order) {
@@ -67,20 +67,12 @@ wss.on('connection',  function connection(ws) {
         sockets.delete(socket);
         socket.clearInterval("orders");
 
-        if (socket.order) {
-            if (socket.user.type == wsUserModule.TYPE_USER) {
-                delete socket.order.user_socket;
-            }
-            else if (socket.user.type == wsUserModule.TYPE_EXECUTOR) {
-                delete socket.order.executor_socket;
-            }
-            if (socket.order.data.status === models.Order.NOT_STARTED) {
-                orders.delete(socket.order);
-                search_orders.delete(socket.order);
-                socket.order.responses.forEach(function(response) {
+        if (socket.order && socket.order.data.status === models.Order.NOT_STARTED) {
+            orders.delete(socket.order);
+            search_orders.delete(socket.order);
+            socket.order.responses.forEach(function(response) {
                 if (response.socket) response.socket.send(functions.response("userDeclined", socket.order.getData()));
             });
-            }
         }
 
         try {
@@ -114,12 +106,10 @@ wss.on('connection',  function connection(ws) {
                 socket.send(functions.response("orderStarted", socket.order.getData()));
                 consoleMsg.log('User/Executor has already processing order', socket.order.getData());
             }
-            else {
-                if (socket.isExecutor()) {
-                    socket.clearInterval("orders");
-                    ordersInterval();
-                    socket.interval("orders", ordersInterval, 10000);
-                }
+            else if (socket.isExecutor()) {
+                socket.clearInterval("orders");
+                ordersInterval();
+                socket.interval("orders", ordersInterval, 10000);
             }
         }
         else {
@@ -209,18 +199,23 @@ wss.on('connection',  function connection(ws) {
             return;
         }
 
+        if (await socket.hasProcessingOrder()) {
+            socket.send(functions.errorResponse({message: "you already have order"}));
+            return;
+        }
+
         let order = functions.setFind(orders, (order) => {
             return order.data.uuid === data['order_uuid']
         });
+        if (!order) {
+            socket.send(functions.errorResponse({message: 'you have no permissions'}));
+            return;
+        }
         let response = functions.setFind(order.responses, (response) => {
             return response.socket === socket;
         });
         if (!socket.user || !order) {
             socket.send(functions.errorResponse({message: 'you have no permissions'}));
-            return;
-        }
-        if (await socket.hasProcessingOrder()) {
-            socket.send(functions.errorResponse({message: "you already have order"}));
             return;
         }
 
@@ -266,10 +261,6 @@ wss.on('connection',  function connection(ws) {
             return data['executor_uuid'].toString() === elem.socket.uuid.toString();
         });
 
-        if (socket.order) {
-            socket.order.responses.clear();
-        }
-
         if (!executor_response) {
             socket.send(functions.errorResponse({"message": "Отклик не найден"}));
             return;
@@ -292,9 +283,6 @@ wss.on('connection',  function connection(ws) {
         //search_orders.delete(socket.order);
 
         //socket.send(functions.response('chooseExecutor', socket.order.getData()));
-        if (!executor_socket.user) {
-            socket.send(functions.errorResponse({'message': 'Исполнитель отключен'}));
-        }
 
         order.data.price = executor_response.price;
         order.executor_socket = executor_socket;
@@ -534,7 +522,7 @@ wss.on('connection',  function connection(ws) {
 
         let order = socket.order;
 
-        //if (!order) return;
+        if (!order) return;
 
         let db_order = await models.Order.query().patch({status: models.Order.DONE}).where('uuid', order.data.uuid);
 
@@ -549,8 +537,8 @@ wss.on('connection',  function connection(ws) {
         orders.delete(order);
         search_orders.delete(order);
 
-        if (order.user_socket) order.user_socket.order = null;
         if (order.executor_socket) order.executor_socket.order = null;
+        if (order.user_socket) order.user_socket.order = null;
         socket.order = null;
         order.destroy();
     });

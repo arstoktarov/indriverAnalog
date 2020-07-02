@@ -61,8 +61,8 @@ class Order {
                 this.user_data.name = user.name;
                 this.user_data.phone = user.phone;
                 this.user_data.city_id = user.city_id;
-                this.user_data.device_token = user.device_token;
-                this.user_data.device_type = user.device_type;
+                this.executor_data.device_token = user.device_token;
+                this.executor_data.device_type = user.device_type;
             } catch (e) {
                 consoleMsg.log(`Cannot set User data: ${e}`);
             }
@@ -93,33 +93,11 @@ class Order {
     }
 
     getUserData() {
-        if (this.user_data) {
-            return {
-                "id": this.user_data.id,
-                "type": this.user_data.type,
-                "name": this.user_data.name,
-                "phone": this.user_data.phone,
-                "city_id": this.user_data.city_id,
-                //"device_token": this.user_data.device_token,
-                //"device_type": this.user_data.device_type,
-            }
-        }
-        return null;
+        return this.user_data ? this.user_data : null;
     }
 
     getExecutorData() {
-        if (this.executor_data) {
-            return {
-                "id": this.executor_data.id,
-                "type": this.executor_data.type,
-                "name": this.executor_data.name,
-                "phone": this.executor_data.phone,
-                "city_id": this.executor_data.city_id,
-                //"device_token": this.executor_data.device_token,
-                //"device_type": this.executor_data.device_type,
-            }
-        }
-        return null;
+        return this.executor_data ? this.executor_data : null;
     }
 
     getData() {

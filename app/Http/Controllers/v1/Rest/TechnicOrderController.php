@@ -16,6 +16,7 @@ class TechnicOrderController extends Controller
                 $query->with('type');
             }
         ])
+        ->orderByDesc('created_at')
         ->paginate(Controller::PAGINATE_COUNT);
         return $orders;
     }

@@ -11,7 +11,7 @@ const functions = require('./additionalFunctions');
 const { Order, Response } = require('../Modules/WSOrder');
 //Константы типа пользователя
 const TYPE_USER = 1;
-const TYPE_EXECUTOR = 2;
+const TYPE_COURIER = 2;
 
 const models = require('../Models/Models');
 
@@ -197,7 +197,7 @@ class WSUser {
     }
 
     isExecutor() {
-        return !!(this.hasUser() && this.user.type === TYPE_EXECUTOR);
+        return !!(this.hasUser() && this.user.type === TYPE_COURIER);
     }
 
     getTechnic(id) {
@@ -235,7 +235,7 @@ class WSUser {
     setOrder(order) {
         if (order && this.hasUser()) {
             this.order = order;
-            if (this.user.type === TYPE_EXECUTOR) {
+            if (this.user.type === TYPE_COURIER) {
                 order.executor_socket = this;
             }
             else {
@@ -314,4 +314,4 @@ class WSUser {
 
 module.exports.User = WSUser;
 module.exports.TYPE_USER = TYPE_USER;
-module.exports.TYPE_EXECUTOR = TYPE_EXECUTOR;
+module.exports.TYPE_COURIER = TYPE_COURIER;

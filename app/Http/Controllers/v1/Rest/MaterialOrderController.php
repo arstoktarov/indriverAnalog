@@ -5,6 +5,7 @@ namespace App\Http\Controllers\v1\Rest;
 use App\Events\Push\MaterialOrders\ExecutorAccepted;
 use App\Events\Push\MaterialOrders\ExecutorDone;
 use App\Events\Push\MaterialOrders\ExecutorResponded;
+use App\Events\Push\MaterialOrders\UserAcceptedResponse;
 use App\Http\Controllers\Controller;
 use App\Models\MaterialOrder;
 use App\Models\MaterialOrderResponse;
@@ -23,7 +24,9 @@ class MaterialOrderController extends Controller
             'material' => function($query) {
                 $query->with('type');
             },
-        ])->paginate(Controller::PAGINATE_COUNT);
+        ])
+        ->orderByDesc('created_at')
+        ->paginate(Controller::PAGINATE_COUNT);
         return $materialOrders;
     }
 
@@ -188,7 +191,17 @@ class MaterialOrderController extends Controller
         $materialOrder->status = MaterialOrder::STATUS_IN_PROCESS;
         $materialOrder->save();
 
-        event($request['user'], $materialOrder->executor);
+        $materialOrder = $user->materialOrders()->with([
+            'user', 'executor',
+            'city',
+            'material' => function($query) {
+                $query->with('type');
+            },
+        ])->find($materialOrder->id);
+
+        if ($materialOrder->executor) {
+            event(new UserAcceptedResponse($request['user'], $materialOrder->executor));
+        }
 
         return $materialOrder;
     }

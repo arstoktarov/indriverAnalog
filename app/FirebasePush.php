@@ -62,9 +62,10 @@ class FirebasePush
             'registration_ids' => $registration_ids,
             'data' => $message,
         );
-        //if ($device_type == self::ios) {
+        if ($device_type == self::ios) {
             $fields['notification'] = $message;
-        //}
+        }
+        Log::info(print_r($fields, true));
         return self::sendPushNotification($fields);
     }
 
